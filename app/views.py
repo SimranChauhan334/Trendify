@@ -18,18 +18,18 @@ def sub_category(request, id):
     subcategories = SubCategory.objects.filter(category=category_instance) 
     return render(request, "subcategory.html", {'category': category_instance, 'subcategories': subcategories})
 
-def product_view(request, subcategory_id):
-    subcategory = get_object_or_404(SubCategory, id=subcategory_id)
-    products = ListPage.objects.filter(subcategory=subcategory)
-    return render(request, 'product_list.html', {'subcategory': subcategory, 'products': products})
+# def product_view(request, subcategory_id):
+#     subcategory = get_object_or_404(SubCategory, id=subcategory_id)
+#     products = ListPage.objects.filter(subcategory=subcategory)
+#     return render(request, 'product_list.html', {'subcategory': subcategory, 'products': products})
     
 
-def product_detail_view(request, product_id):
-    product = get_object_or_404(ListPage, id=product_id)
-    # print(product)
-    details = product.product_details.first() 
-    is_in_cart = AddToCart.objects.filter(user=request.user, product=product).exists() if request.user.is_authenticated else False
-    return render(request, 'product_detail.html', {'product': product, 'details': details, 'is_in_cart': is_in_cart})
+# def product_detail_view(request, product_id):
+#     product = get_object_or_404(ListPage, id=product_id)
+#     # print(product)
+#     details = product.product_details.first() 
+#     is_in_cart = AddToCart.objects.filter(user=request.user, product=product).exists() if request.user.is_authenticated else False
+#     return render(request, 'product_detail.html', {'product': product, 'details': details, 'is_in_cart': is_in_cart})
 
 
 def view_cart(request):
