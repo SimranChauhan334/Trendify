@@ -1,0 +1,47 @@
+
+
+{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'static.css' %}">
+    
+    <title>Products in {{ subcategory.name }}</title>
+    
+</head>
+<body>
+    
+        <h1>Products in "{{ subcategory.name }}" Subcategory</h1>
+        <div class="container">
+            <div class="create-list-page">
+                {% if user.profile.is_vendor %}
+                    <a href="/create_list_page/{{ subcategory.id }}" class="create-btn">Create List Page</a>
+                {% endif %}
+            </div>
+    
+            {% for product in products %}
+                <div class="product-card">
+                    <a href="/product/{{ product.id }}" class="product-name">{{ product.product_name }}</a>
+    
+                    {% if user.profile.is_vendor %}
+                        <a href="/edit_list_page/{{ product.id }}" class="edit-btn">Edit</a>
+                    {% endif %}
+    
+                    <div class="product-info">
+                        <h3>Price</h3>
+                        <p class="price">${{ product.product_price }}</p>
+    
+                        {% if product.product_image %}
+                            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}"style="max-width: 100px; height: auto;">
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p>No products available for this subcategory.</p>
+            {% endfor %}
+        </div>
+    
+    </body>
+    </html>

@@ -1,0 +1,74 @@
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <links rel="stylesheet" href="{% static 'static.css' %}"></links>
+  <title>Your Cart</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body{
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .flex{
+        display: flex;
+    }
+    .align-center{
+        align-items: center;
+    }
+    .justify-between{
+        justify-content: space-between;
+    }
+    .name{
+        text-align: center;
+        padding: 20px;
+
+    }
+
+    
+  </style>
+</head>
+<body>
+    <div class="name">
+        <h5>Your Cart</h5>
+    </div>
+    
+    
+    
+    <div class="form flex">
+        {% if cart_items %}
+        <ul>
+           {% for item in cart_items %}
+           <div class="image-section flex">
+            
+            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" style="max-width: 100px; height: auto">
+            {{ item.product.product_name }} 
+            {{ item.product.product_price }}
+
+           </div>
+            
+               
+               
+              
+               <form action="/remove_from_cart/{{ item.product.id }}/" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="remove-btn">
+                       
+                        <i class="fas fa-trash remove-icon"></i>
+                    </button>
+                    
+                </form>
+                <a href="/order/">crete order</a>
+                
+            </li>
+           {% endfor %}
+        </ul>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

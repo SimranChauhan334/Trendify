@@ -1,0 +1,48 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create product page</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>detail page</h1>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form">
+
+                <label for="product_description">Product Description</label>
+                <textarea name="product_description" id="product_description" class="form-control" required></textarea><br><br>
+
+                <label for="material">Material</label>
+                <input type="text" name="material" id="material" class="form-control" required><br><br>
+
+                <label for="size">Size</label>
+                <input type="text" name="size" id="size" class="form-control" required><br><br>
+
+                <label for="color">Color</label>
+                <input type="text" name="color" id="color" class="form-control" required><br><br>
+
+                <label for="additional_info">Additional Information</label>
+                <textarea name="additional_info" id="additional_info" class="form-control" required></textarea><br><br>
+
+                <label for="image">Product Images</label>
+                <input type="file" name="image" id="image" class="form-control" multiple required><br><br>
+
+                <button type="submit" class="btn">Save Product Detail</button>
+
+                <!-- <a href="{% url 'product_view' subcategory_id=list_page.subcategory.id %}">Back to Product View</a> -->
+
+
+            
+            </div>
+        </form>
+    </body>
+    
+</html>
