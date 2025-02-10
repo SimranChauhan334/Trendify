@@ -253,7 +253,7 @@ def add_to_cart(request, product_id):
       
         cart_item.quantity = quantity
     
-    # Save the cart item
+   
     cart_item.save()
     return redirect('cart_page')  # Redirect to the cart page
 # def add_to_cart(request, product_id):

@@ -187,10 +187,13 @@ a:hover {
                 {% else %}
                     <p>No images available.</p>
                 {% endif %}
+               
             </div>
         </div>
 
-        <a href="/product_list_page/{{ product.subcategory.id }}">Back</a>
+        <a href="/products_list_page/{{ subcategory.id }}">Back</a>
+
+        <!-- <a href="/products_list_page/{{ subcategory.id }}">Back</a> -->
 
         {% if user.is_authenticated and not user.profile.is_vendor %}
             {% if is_in_cart %}
