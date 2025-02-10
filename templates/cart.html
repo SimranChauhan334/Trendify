@@ -1,74 +1,177 @@
 
 
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <links rel="stylesheet" href="{% static 'static.css' %}"></links>
-  <title>Your Cart</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <style>
-    body{
-        font-family: Arial, Helvetica, sans-serif;
-    }
-    .flex{
-        display: flex;
-    }
-    .align-center{
-        align-items: center;
-    }
-    .justify-between{
-        justify-content: space-between;
-    }
-    .name{
-        text-align: center;
-        padding: 20px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
 
-    }
+        .container {
+            width: 80%;
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    
-  </style>
+        h5 {
+            font-size: 2.2em;
+            color: #343a40;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item-details h6 {
+            font-size: 1.4em;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .cart-item-details p {
+            font-size: 1.1em;
+            color: #6c757d;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            font-size: 1.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+
+        .create-order-btn {
+            display: block;
+            text-align: center;
+            padding: 15px;
+            background-color: #96c9ff;
+            color: white;
+            font-size: 1.3em;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 40px;
+            transition: background-color 0.3s ease;
+        }
+
+        .create-order-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .empty-cart-msg {
+            text-align: center;
+            font-size: 1.2em;
+            color: #adb5bd;
+            margin-top: 40px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cart-item img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .cart-item-details {
+                margin-top: 15px;
+            }
+
+            .remove-btn {
+                margin-top: 15px;
+            }
+
+            .create-order-btn {
+                margin-top: 30px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="name">
+    <div class="container">
         <h5>Your Cart</h5>
-    </div>
-    
-    
-    
-    <div class="form flex">
-        {% if cart_items %}
-        <ul>
-           {% for item in cart_items %}
-           <div class="image-section flex">
-            
-            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" style="max-width: 100px; height: auto">
-            {{ item.product.product_name }} 
-            {{ item.product.product_price }}
 
-           </div>
-            
-               
-               
-              
-               <form action="/remove_from_cart/{{ item.product.id }}/" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="remove-btn">
-                       
-                        <i class="fas fa-trash remove-icon"></i>
-                    </button>
-                    
-                </form>
-                <a href="/order/">crete order</a>
-                
-            </li>
-           {% endfor %}
-        </ul>
-        {% else %}
-            <p>Your cart is empty.</p>
-        {% endif %}
+        <div class="cart-items">
+            {% if cart_items %}
+                <ul>
+                    {% for item in cart_items %}
+                    <li class="cart-item">
+                        <div class="image-section">
+                            {% if item.product.images.first %}
+                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.product_name }}">
+                            {% else %}
+                                <p>No images available.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="cart-item-details">
+                            <h6>{{ item.product.product_name }}</h6>
+                            <p>${{ item.product.product_price }}</p>
+                        </div>
+
+                        <form action="/remove_from_cart/{{ item.product.id }}/" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="remove-btn">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <a href="/order/" class="create-order-btn">Proceed to Order</a>
+
+            {% else %}
+                <p class="empty-cart-msg">Your cart is empty. Start shopping now!</p>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>

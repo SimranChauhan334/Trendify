@@ -1,47 +1,93 @@
 
 
-{% load static%}
+
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'static.css' %}">
-    
     <title>Products in {{ subcategory.name }}</title>
-    
 </head>
 <body>
+    <header>
+        <h2>Products in {{ subcategory.name }}</h2>
+    </header>
+   
     
-        <h1>Products in "{{ subcategory.name }}" Subcategory</h1>
-        <div class="container">
-            <div class="create-list-page">
-                {% if user.profile.is_vendor %}
-                    <a href="/create_list_page/{{ subcategory.id }}" class="create-btn">Create List Page</a>
-                {% endif %}
-            </div>
     
+    {% if products %}
+        <div class="product-list">
             {% for product in products %}
-                <div class="product-card">
-                    <a href="/product/{{ product.id }}" class="product-name">{{ product.product_name }}</a>
-    
-                    {% if user.profile.is_vendor %}
-                        <a href="/edit_list_page/{{ product.id }}" class="edit-btn">Edit</a>
+                <div class="product-item">
+                    <h2>{{ product.product_name }}</h2>
+                    <p>Price: ${{ product.product_price }}</p>
+                    
+                    
+                    {% if product.images.all %}
+                        <div class="product-image">
+                          
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.product_name }}" width="150">
+                        </div>
+                    {% else %}
+                        <p>No images available.</p>
                     {% endif %}
-    
-                    <div class="product-info">
-                        <h3>Price</h3>
-                        <p class="price">${{ product.product_price }}</p>
-    
-                        {% if product.product_image %}
-                            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}"style="max-width: 100px; height: auto;">
-                        {% endif %}
-                    </div>
+                    <a href="/product_detail/{{ product.id }}">View Details</a>
+                    {% if user.profile.is_vendor %}
+                        <a href="/edit-product/{{ product.id}}">Edit</a>
+                    {% endif %}    
+
+                
+                 
                 </div>
-            {% empty %}
-                <p>No products available for this subcategory.</p>
             {% endfor %}
         </div>
+    {% else %}
+        <p>No products found in this subcategory.</p>
+    {% endif %}
+
+</body>
+</html>
+
+<!-- {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'static.css' %}">
+    <title>Products in {{ subcategory.name }}</title>
+</head>
+<body>
+
+    <header>
+        <h2>Products in {{ subcategory.name }}</h2>
+    </header>
+
     
-    </body>
-    </html>
+    
+       
+            <a href="/create-product/{{ subcategory.id }}/">Create</a>
+        
+    
+
+    <div class="product-list">
+        {% for product in products %}
+            <div class="product-item">
+                <h3>{{ product.product_name }}</h3>
+                <p>Price: ${{ product.product_price }}</p>
+                <div class="product-image">
+                    {% for image in product.images.all %}
+                    <img src="{{ image.image.url }}" alt="Image for {{ product.product_name }}" width="100">
+                   {% endfor %}
+                </div>
+               
+            </div>
+        {% empty %}
+            <p>No products available in this subcategory.</p>
+        {% endfor %}
+    </div>
+
+</body>
+</html> -->

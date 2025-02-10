@@ -24,7 +24,6 @@ class SubCategory(models.Model):
 
 class Product(models.Model):
     product_name = models.CharField(max_length=80)
-    product_image = models.ImageField(upload_to="product_images/", null=True, blank=True)
     product_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     product_description = models.TextField(null=True, blank=True)
     color = models.CharField(max_length=50, null=True, blank=True)
@@ -39,13 +38,13 @@ class Product(models.Model):
 
         
 
-
 class ProductImage(models.Model):
-    image = models.ImageField(upload_to="product_images/")
-    product_detail = models.ForeignKey(Product, related_name="images", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name="images", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='product_images/')
     
     def __str__(self):
-        return f"Image for {self.product_detail.list_page.product_name}"
+        return f"Image for {self.product.product_name}"
+
 
 
 class AddToCart(models.Model):
@@ -53,6 +52,7 @@ class AddToCart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return f"{self.product.product_name} in {self.user.username}'s cart"

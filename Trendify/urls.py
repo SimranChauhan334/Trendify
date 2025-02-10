@@ -17,7 +17,7 @@ Including another URLconf
 
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from app.views import *
 from django.conf import settings
 from django.conf.urls.static import static
@@ -25,6 +25,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage, name='homepage'),
+   
 
     # Category Views #
     path('create/', Create_category, name='Create_category'),
@@ -34,18 +35,16 @@ urlpatterns = [
     path('sub_category/<int:id>/', sub_category, name="sub_category"), 
     path('create_subcategory/<int:id>/', create_subcategory, name="create_subcategory"), 
     path('edit_sub_cat/<int:subcategory_id>/', edit_sub_cat, name="edit_sub_category"), 
-
-    ## List Page ##
-    path('create_list_page/<int:subcategory_id>/', create_list_page, name='create_list_page'),
-    path('products/<int:subcategory_id>/', product_view, name='product_view'),
-    path('edit_list_page/<int:list_page_id>/', edit_list_page, name='edit_list_page'),
-
-    ## product_page ##
-    path('create_product_detail/<int:list_page_id>/', create_product_detail, name='create_product_detail'),
-    path('product/<int:product_id>/', product_detail_view, name='product_detail_view'),
-    path('product/edit/<int:product_detail_id>/', edit_product_detail, name='edit_product_detail'),
+    
    
-    # path('product/<int:product_id>/', product_detail_view, name='product_detail_view'),
+    ## product_page ##
+    path('products_list_page/<int:subcategory_id>/', product_list_page, name='product_list_page'),
+    path('product_detail/<int:product_id>/', product_detail, name='product_detail'),
+    path('create-product/<int:subcategory_id>/', create_product, name='create_product'),
+    path('edit-product/<int:product_id>/', Edit_product_page, name='edit_product'),
+    
+   
+    
    
    ## cart options ##
     path('add_to_cart/<int:product_id>/', add_to_cart, name='add_to_cart'),
@@ -58,8 +57,7 @@ urlpatterns = [
     path('login/', userlogin, name="userlogin"),
     path('logout/', userlogout, name="userlogout"),
     path('profile/', get_profile, name='get_profile'),
-     path('search/', search_bar, name='search'),
-
+    
 
 ] + static(settings.STATIC_URL, documents_root= settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

@@ -3,7 +3,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from .models import Category, SubCategory, Product, Profile, ProductDetail, ProductImage, Order, AddToCart
+from .models import Category, SubCategory, Product, Profile,  ProductImage, Order, AddToCart
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -18,46 +18,70 @@ def sub_category(request, id):
     subcategories = SubCategory.objects.filter(category=category_instance) 
     return render(request, "subcategory.html", {'category': category_instance, 'subcategories': subcategories})
 
-# def product_view(request, subcategory_id):
-#     subcategory = get_object_or_404(SubCategory, id=subcategory_id)
-#     products = ListPage.objects.filter(subcategory=subcategory)
-#     return render(request, 'product_list.html', {'subcategory': subcategory, 'products': products})
+def product_list_page(request, subcategory_id):
     
+    if not request.user.is_authenticated:
+        return redirect('userlogin') 
+    subcategory = get_object_or_404(SubCategory, id=subcategory_id)
+   
+    products = Product.objects.filter(subcategory=subcategory)
 
-# def product_detail_view(request, product_id):
-#     product = get_object_or_404(ListPage, id=product_id)
-#     # print(product)
-#     details = product.product_details.first() 
-#     is_in_cart = AddToCart.objects.filter(user=request.user, product=product).exists() if request.user.is_authenticated else False
-#     return render(request, 'product_detail.html', {'product': product, 'details': details, 'is_in_cart': is_in_cart})
+    return render(request, 'product_list.html', {
+        'subcategory': subcategory,
+        'products': products
+    })
 
+
+def product_detail(request, product_id):
+   
+    product = get_object_or_404(Product, id=product_id)
+    
+   
+    images = product.images.first()  
+    
+    
+    if request.user.is_authenticated:
+        is_in_cart = AddToCart.objects.filter(user=request.user, product=product).exists()
+    else:
+        is_in_cart = False
+
+    return render(request, 'product_detail.html', {
+        'product': product,
+        'images': images,
+        'is_in_cart': is_in_cart  
+    })
 
 def view_cart(request):
     if request.user.is_authenticated:
         cart_items = AddToCart.objects.filter(user=request.user) 
+        
+        
+        for item in cart_items:
+            item.product_images = item.product.images.first()  
+
         return render(request, 'cart.html', {'cart_items': cart_items})
-    
+    else:
+        return redirect('userlogin')
+
+
 def search_bar(request):
-    query = request.GET.get('q', "")  
 
-   
-    # products = ListPage.objects.all()
-    # categories = Category.objects.all()
+    query = request.GET.get('q','')
+    products = Product.objects.all()
+    categories = Category.objects.all()
 
-    if query: 
-        products = ListPage.objects.filter(
+
+    if query :
+        products = Product.objects.filter(
             Q(product_name__icontains=query) |
-            Q(product_description__icontains=query)  
+            Q(category__name__icontains=query)
         )
-        # categories = categories.filter(name__icontains=query) 
-
-   
+        categories = Category.objects.filter(name__icontains=query)
     return render(request, 'index.html', {
         'products': products,
-        # 'categories': categories,
-        'query': query
-    })
-
+        'categories':categories,
+        'query': query,
+    })    
 
 def Create_category(request):
     if request.method == "POST":
@@ -139,150 +163,117 @@ def edit_sub_cat(request, subcategory_id):
         'categories': categories
     })
 
-def create_list_page(request, subcategory_id):
-   
-    subcategory = get_object_or_404(SubCategory, id=subcategory_id)
+def create_product(request, subcategory_id):
+    subcategory = get_object_or_404(SubCategory, id=subcategory_id)  # Get subcategory by ID
     category = subcategory.category  
-
+    
     if request.method == 'POST':
        
         product_name = request.POST.get('product_name')
         product_price = request.POST.get('product_price')
+        product_description = request.POST.get('product_description')
+        color = request.POST.get('color')
+        material = request.POST.get('material')
         stock = request.POST.get('stock')
-        product_image = request.FILES.get('product_image')
 
-      
-        list_page = ListPage.objects.create(
+        product = Product(
             product_name=product_name,
             product_price=product_price,
-            stock = stock,
-            product_image=product_image,
-            category=category,
-            subcategory=subcategory,
-            user=request.user 
-        )
-        list_page.save()
-
-       
-        return redirect('product_view', subcategory_id=subcategory.id)  
-
-    return render(request, 'create_list_page.html', {'subcategory': subcategory, 'category': category})
-
-def edit_list_page(request,list_page_id):
-
-    list_page = get_object_or_404(ListPage, id=list_page_id)
-    subcategory = list_page.subcategory
-    category = list_page.category
-
-    if request.method == 'POST':
-        
-        product_name = request.POST.get('product_name')
-        product_price = request.POST.get('product_price')
-        stock = request.POST.get('stock')
-        product_image = request.FILES.get('product_image')
-
-        list_page.product_name = product_name
-        list_page.product_price = product_price
-        list_page.stock = stock
-
-        if product_image:
-            list_page.product_image = product_image
-
-        list_page.save()
-
-        return redirect('product_view', subcategory_id=subcategory.id)
-    return render(request, 'edit_list_page.html', {'list_page': list_page, 'subcategory': subcategory, 'category': category}) 
-
-
-def create_product_detail(request, list_page_id):
-    list_page = get_object_or_404(ListPage, id=list_page_id)
-
-    if request.method == 'POST':
-        product_description = request.POST['product_description']
-        material = request.POST['material']
-        size = request.POST['size']
-        color = request.POST['color']
-        additional_info = request.POST['additional_info']
-        product_images = request.FILES.getlist('image')  
-
-        
-        product_detail = ProductDetail.objects.create(
             product_description=product_description,
-            material=material,
-            size=size,
             color=color,
-            additional_info=additional_info,
-            list_page=list_page 
+            material=material,
+            stock=stock,
+            subcategory=subcategory,  
+            category=category, 
         )
-
-      
-        for img in product_images:
-            ProductImage.objects.create(product_detail=product_detail, image=img)
-
-        return redirect('product_detail_view', product_id=product_detail.id)
-
-    return render(request, 'create_product_detail.html', {'list_page': list_page})
-
-def edit_product_detail(request, product_detail_id):
-    product_detail = get_object_or_404(ProductDetail, id=product_detail_id)
-
-    if request.method == 'POST':
+        product.save()
        
-        product_description = request.POST['product_description']
-        material = request.POST['material']
-        size = request.POST['size']
-        color = request.POST['color']
-        additional_info = request.POST['additional_info']
-        product_image = request.FILES.getlist('image') 
+        images = request.FILES.getlist('images')  
+        for image in images:
+            ProductImage.objects.create(product=product, image=image)
+
+        return redirect('product_list_page', subcategory_id=subcategory_id)
+
+    return render(request, 'create_product.html', {'subcategory_id': subcategory_id, 'subcategory': subcategory})
+
+
+def Edit_product_page(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == "POST":
+        
+        product.product_name = request.POST.get("product_name")
+        product.product_price = request.POST.get("product_price")
+        product.product_description = request.POST.get("product_description")
+        product.color = request.POST.get("color")
+        product.material = request.POST.get("material")
+        product.stock = request.POST.get("stock")
         
        
-        product_detail.product_description = product_description
-        product_detail.material = material
-        product_detail.size = size
-        product_detail.color = color
-        product_detail.additional_info = additional_info
-        product_detail.save()
+        delete_images = request.POST.getlist("delete_images") 
+        for image_id in delete_images:
+            image = get_object_or_404(ProductImage, id=image_id)
+            image.delete()
 
        
-        delete_image_ids = request.POST.getlist('delete_images')
-        for img_id in delete_image_ids:
-            try:
-                image_to_delete = ProductImage.objects.get(id=img_id, product_detail=product_detail)
-                image_to_delete.delete()  
-            except ProductImage.DoesNotExist:
-                pass 
-
-       
-        for img in product_detail.images.all():
-           
-            new_image = request.FILES.get(f'new_image_{img.id}')
+        for image_id in product.images.all():
+            new_image = request.FILES.get(f"new_image_{image_id.id}")
             if new_image:
-                img.image = new_image 
-                img.save()  
+               
+                image_id.image = new_image
+                image_id.save()
 
        
-        for img in product_image:
-            ProductImage.objects.create(product_detail=product_detail, image=img)
+        new_images = request.FILES.getlist("new_images")
+        for new_image in new_images:
+            ProductImage.objects.create(product=product, image=new_image)
 
-        return redirect('product_detail_view', product_id=product_detail.list_page.id)
+        product.save()
+        return redirect("product_detail", product_id=product.id)
 
-    return render(request, 'edit_product_detail.html', {'product_detail': product_detail})
+    return render(request, 'edit_product_page.html', {'product': product})
 
-def add_to_cart(request,product_id):
-    product = ListPage.objects.get(id=product_id)
 
-    if not request.user.is_authenticated:
-        return redirect('userlogin') 
 
-    cart_item, created = AddToCart.objects.get_or_create(
-        user=request.user, 
-        product=product)
-    
+def add_to_cart(request, product_id):
+    product = Product.objects.get(id=product_id)
+    quantity = int(request.POST.get('quantity', 1)) 
+
+    if quantity > product.stock:
+        
+        return HttpResponse(f"Only {product.stock} items are available.", status=400)
+
+   
+    cart_item, created = AddToCart.objects.get_or_create(user=request.user, product=product)
+
     if not created:
-        cart_item.quantity += 1
-        cart_item.save()
+        
+        cart_item.quantity += quantity
+    else:
+      
+        cart_item.quantity = quantity
+    
+    # Save the cart item
+    cart_item.save()
+    return redirect('cart_page')  # Redirect to the cart page
+# def add_to_cart(request, product_id):
+#     product = Product.objects.get(id=product_id)
+   
 
-    return redirect('cart')
+#     if not request.user.is_authenticated:
+#         return redirect('userlogin') 
+
+#     cart_item, created = AddToCart.objects.get_or_create(
+#         user=request.user, 
+#         product=product)
+    
+#     if not created:
+#         cart_item.quantity += 1
+#         cart_item.save()
+
+#     return redirect('cart')
+
+
 
 def remove_from_cart(request, product_id):
 
@@ -294,24 +285,29 @@ def remove_from_cart(request, product_id):
     cart_item.delete()
     return redirect('cart')
 
-def create_order(request):
-    if request.method == 'POST':
-        shipping_address = request.POST["shipping_address"]
 
-        cart_items = AddToCart.objects.filter(user=request.user)
-        if not cart_items:
-            return HttpResponse('your cart is empty')
+def create_order(request):
+    if not request.user.is_authenticated:
         
+        return redirect('login')  
+    
+    
+    cart_items = AddToCart.objects.filter(user=request.user)
+    
+    if cart_items.exists():
+       
         for item in cart_items:
-            Order.objects.create(
-                user=request.user,
-                product=item.product,
-                quantity=item.quantity,
-                price=item.product.product_price,
-                shipping_address=shipping_address
-            )
-        cart_items.delete()
-        return redirect('order_confirm.html')    
+            item.total_price = item.product.product_price * item.quantity 
+        
+        
+        total_amount = sum(item.total_price for item in cart_items)
+
+        
+        return render(request, 'order.html', {'cart_items': cart_items, 'total_amount': total_amount})
+    
+   
+    return redirect('product_list_page')
+
 
 
 def createuser(request):
