@@ -42,15 +42,19 @@ urlpatterns = [
     path('product_detail/<int:product_id>/', product_detail, name='product_detail'),
     path('create-product/<int:subcategory_id>/', create_product, name='create_product'),
     path('edit-product/<int:product_id>/', Edit_product_page, name='edit_product'),
-    
-   
-    
+       
    
    ## cart options ##
     path('add_to_cart/<int:product_id>/', add_to_cart, name='add_to_cart'),
     path('cart/', view_cart, name='cart'),
     path('remove_from_cart/<int:product_id>/', remove_from_cart, name='remove_from_cart'),
-    path('order/', create_order, name="create_order"),
+
+    # order urls
+    path('order/', proceed_order, name="proceed_order"),
+    path('order_confirmation/<int:order_id>/', order_confirmation, name='order_confirmation'),
+    path('history/', order_history, name="order_history"),
+
+
    
     # User authentication Views #
     path('create_user/', createuser, name='create_user'),

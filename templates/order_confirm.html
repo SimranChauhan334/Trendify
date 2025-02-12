@@ -1,0 +1,64 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Review Your Order</h2>
+
+       
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <h3>Shipping Address</h3>
+            <textarea name="shipping_address" rows="4" cols="50" placeholder="Enter your shipping address" required></textarea>
+
+            <h3>Payment Method</h3>
+            <select name="payment_method" required>
+                <option value="credit_card">Credit Card</option>
+                <option value="phone_pay">Phone Pay</option>
+                <option value="paytm">Paytm</option>
+                <option value="bank_transfer">Bank Transfer</option>
+            </select>
+
+            <h3>Order Summary</h3>
+            <ul>
+                {% for item in cart_item_prices %}
+                    <li>
+                        {{ item.product_name }} - {{ item.quantity }} x ${{ item.price }} 
+                        = ${{ item.total_price }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <h4>Total Amount: ${{ total_amount }}</h4>
+
+            <button type="submit">Place Order</button>
+        </form>
+    </main>
+</body>
+</html>

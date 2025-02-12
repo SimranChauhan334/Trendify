@@ -64,6 +64,13 @@ class Order(models.Model):
         ('confirmed', 'confirmed'),
         ('cancelled', 'cancelled'),
     ]
+
+    PAYMENT_METHODS = [
+        ('credit_card', 'credit_card'),
+        ('phone_pay', 'phone_pay'),
+        ('paytm', 'paytm'),
+        ('bank_transfer', 'bank_transfer')
+    ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -73,6 +80,8 @@ class Order(models.Model):
     delivery_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS, default='pending')
     shipping_address = models.TextField()
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, null=True, blank=True)  
+
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username} - {self.status}"

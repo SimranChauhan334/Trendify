@@ -1,12 +1,12 @@
 
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New User</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> 
 </head>
 
 <body>
@@ -32,11 +32,7 @@
 
 
         <label for="phone_number">Phone Number: </label>
-        <input type="number" name="phone_number" placeholder="Enter your phone no" /><br><br>
-
-        <!-- <label for="phone_no">Phone Number: </label>
-        <input type="number" name="phone_no" placeholder="Enter your phone no" /><br><br> -->
-
+        <input type="number" name="phone_number" placeholder="Enter your phone no" /><br><br>  
 
         <label for="is_vendor">Are you a vendor?</label>
         <input type="radio" name="is_vendor" value="True" id="is_vendor_yes">

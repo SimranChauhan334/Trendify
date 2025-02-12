@@ -1,0 +1,30 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order form</title>
+</head>
+<body>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label for="shipping_address">shipping_address:</label>
+        <textarea name="shipping_address" required></textarea><br><br>
+
+        <label for="payment_method">payment Method:</label>
+        <select name="payment_method" required>
+            <option value="credit_card">Credit Card</option>
+            <option value="phone_pay">Phone Pay</option>
+            <option value="paytm">Paytm</option>
+            <option value="bank_transfer">Bank Transfer</option>
+        </select><br><br>
+
+        <button type="submit">Proceed to Order</button>
+    </form>
+</body>
+</html>

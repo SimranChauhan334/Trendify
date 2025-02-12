@@ -1,7 +1,11 @@
 
 
 
-{% load static %}
+
+
+
+
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,8 +18,10 @@
     <header>
         <h2>Products in {{ subcategory.name }}</h2>
     </header>
-   
-    <a href="/create-product/{{ subcategory.id }}">Create product</a>
+
+    {% if user.profile.is_vendor %}
+       <a href="/create-product/{{ subcategory.id }}">Create product</a>
+    {% endif %}
     
     {% if products %}
         <div class="product-list">

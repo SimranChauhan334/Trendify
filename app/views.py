@@ -18,6 +18,7 @@ def sub_category(request, id):
     subcategories = SubCategory.objects.filter(category=category_instance) 
     return render(request, "subcategory.html", {'category': category_instance, 'subcategories': subcategories})
 
+
 def product_list_page(request, subcategory_id):
     
     if not request.user.is_authenticated:
@@ -51,37 +52,38 @@ def product_detail(request, product_id):
         'is_in_cart': is_in_cart  
     })
 
+
+
 def view_cart(request):
     if request.user.is_authenticated:
-        cart_items = AddToCart.objects.filter(user=request.user) 
-        
-        
+        cart_items = AddToCart.objects.filter(user=request.user)
+                
         for item in cart_items:
-            item.product_images = item.product.images.first()  
+            item.product_images = item.product.images.first() 
+            item.total_price = item.product.product_price * item.quantity  
 
-        return render(request, 'cart.html', {'cart_items': cart_items})
+        
+        total_amount = sum(item.total_price for item in cart_items)
+       
+        return render(request, 'cart.html', {'cart_items': cart_items, 'total_amount': total_amount})
     else:
+        
         return redirect('userlogin')
+
 
 
 def search_bar(request):
 
     query = request.GET.get('q','')
-    products = Product.objects.all()
-    categories = Category.objects.all()
-
+    data = Product.objects.none()
+    # categories = Category.objects.all()
 
     if query :
-        products = Product.objects.filter(
-            Q(product_name__icontains=query) |
-            Q(category__name__icontains=query)
-        )
-        categories = Category.objects.filter(name__icontains=query)
-    return render(request, 'index.html', {
-        'products': products,
-        'categories':categories,
-        'query': query,
-    })    
+        data = Product.objects.filter(product_name__icontains=query
+                                      )| Product.objects.filter(product_color__icontains=query)        
+        # categories = Category.objects.filter(name__icontains=query)
+    return render(request, 'index.html', {'products': data, 'query': query,})    
+
 
 def Create_category(request):
     if request.method == "POST":
@@ -164,7 +166,7 @@ def edit_sub_cat(request, subcategory_id):
     })
 
 def create_product(request, subcategory_id):
-    subcategory = get_object_or_404(SubCategory, id=subcategory_id)  # Get subcategory by ID
+    subcategory = get_object_or_404(SubCategory, id=subcategory_id) 
     category = subcategory.category  
     
     if request.method == 'POST':
@@ -255,23 +257,7 @@ def add_to_cart(request, product_id):
     
    
     cart_item.save()
-    return redirect('cart_page')  # Redirect to the cart page
-# def add_to_cart(request, product_id):
-#     product = Product.objects.get(id=product_id)
-   
-
-#     if not request.user.is_authenticated:
-#         return redirect('userlogin') 
-
-#     cart_item, created = AddToCart.objects.get_or_create(
-#         user=request.user, 
-#         product=product)
-    
-#     if not created:
-#         cart_item.quantity += 1
-#         cart_item.save()
-
-#     return redirect('cart')
+    return redirect('cart') 
 
 
 
@@ -281,34 +267,82 @@ def remove_from_cart(request, product_id):
         return redirect('userlogin')
     
     cart_item = AddToCart.objects.filter(user=request.user, product_id=product_id).first()
-    # if cart_item:
+   
     cart_item.delete()
     return redirect('cart')
 
 
-def create_order(request):
-    if not request.user.is_authenticated:
-        
-        return redirect('login')  
-    
-    
-    cart_items = AddToCart.objects.filter(user=request.user)
-    
-    if cart_items.exists():
-       
-        for item in cart_items:
-            item.total_price = item.product.product_price * item.quantity 
-        
-        
-        total_amount = sum(item.total_price for item in cart_items)
 
-        
-        return render(request, 'order.html', {'cart_items': cart_items, 'total_amount': total_amount})
-    
+def order_history(request):
    
-    return redirect('product_list_page')
+    orders = Order.objects.filter(user=request.user).order_by('-order_date') 
+
+    return render(request, 'order_confirm.html', {'orders': orders})
 
 
+
+def proceed_order(request):
+   
+    cart_items = AddToCart.objects.filter(user=request.user)
+
+    if cart_items.exists():
+        if request.method == 'POST':
+            
+            shipping_address = request.POST.get('shipping_address')
+            payment_method = request.POST.get('payment_method')
+
+            if shipping_address and payment_method:
+                total_amount = 0
+                cart_item_prices = [] 
+
+              
+                for item in cart_items:
+                    item_total_price = item.product.product_price * item.quantity
+                    cart_item_prices.append({
+                        'product_name': item.product.product_name,
+                        'quantity': item.quantity,
+                        'price': item.product.product_price,
+                        'total_price': item_total_price
+                    })
+                    total_amount += item_total_price
+
+                  
+                    Order.objects.create(
+                        user=request.user,
+                        product=item.product,
+                        price=item.product.product_price,
+                        quantity=item.quantity,
+                        shipping_address=shipping_address,
+                        payment_method=payment_method,
+                    )
+
+               
+                cart_items.delete()
+
+              
+                return render(request, 'order_confirm.html', {
+                    'cart_item_prices': cart_item_prices,
+                    'total_amount': total_amount
+                })
+
+            else:
+               
+                return render(request, 'order_confirm.html', {
+                    'cart_items': cart_items,
+                    'error': 'Please provide a shipping address and payment method.'
+                })
+
+       
+        return render(request, 'order_confirm.html', {'cart_items': cart_items})
+
+    else:
+       
+        return redirect('cart') 
+
+
+def order_confirmation(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, 'order_confirmation.html', {'order': order})
 
 def createuser(request):
     if request.method == "POST":

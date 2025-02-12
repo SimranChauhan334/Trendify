@@ -17,8 +17,20 @@
 
     <div class="container">
         <h1>Your Order</h1>
+        
+        <div>
+            <label for="Shipping_address">Shipping_address</label>
+            <input type="address" name="Shipping_address" id="Shipping_address" placeholder="Enter address" required><br><br>
+          
+        </div>
+        <div class="payment-method">
+            <label for="payment_method">payment_method</label>
+            <input type="payment" name="payment_method" id="payment_method" placeholder=" " required><br><br>
+        </div>
 
-        {% if cart_items %}
+
+
+         <!-- {% if cart_items %}
             <div class="order-items">
                 {% for item in cart_items %}
                     <div class="order-item">
@@ -26,17 +38,17 @@
                             <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.product_name }}" style="max-width: 100px;">
                         {% else %}
                             <p>No image available</p>
-                        {% endif %}
+                        {% endif %} 
                         
                         <div>
                             <h3>{{ item.product.product_name }}</h3>
                             <p>Price: ${{ item.product.product_price }}</p>
                             <p>Quantity: {{ item.quantity }}</p>
-                            <p>Total: ${{ item.total_price }}</p> 
+                            <p>Total: ${{ item.total_price }}</p>
                         </div>
                     </div>
                 {% endfor %}
-            </div>
+            </div> -->
 
             <div class="total">
                 <p>Total Amount: ${{ total_amount }}</p>
