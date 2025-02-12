@@ -50,8 +50,7 @@ urlpatterns = [
     path('remove_from_cart/<int:product_id>/', remove_from_cart, name='remove_from_cart'),
 
     # order urls
-    path('order/', proceed_order, name="proceed_order"),
-    path('order_confirmation/<int:order_id>/', order_confirmation, name='order_confirmation'),
+    
     path('history/', order_history, name="order_history"),
 
 

@@ -281,68 +281,6 @@ def order_history(request):
 
 
 
-def proceed_order(request):
-   
-    cart_items = AddToCart.objects.filter(user=request.user)
-
-    if cart_items.exists():
-        if request.method == 'POST':
-            
-            shipping_address = request.POST.get('shipping_address')
-            payment_method = request.POST.get('payment_method')
-
-            if shipping_address and payment_method:
-                total_amount = 0
-                cart_item_prices = [] 
-
-              
-                for item in cart_items:
-                    item_total_price = item.product.product_price * item.quantity
-                    cart_item_prices.append({
-                        'product_name': item.product.product_name,
-                        'quantity': item.quantity,
-                        'price': item.product.product_price,
-                        'total_price': item_total_price
-                    })
-                    total_amount += item_total_price
-
-                  
-                    Order.objects.create(
-                        user=request.user,
-                        product=item.product,
-                        price=item.product.product_price,
-                        quantity=item.quantity,
-                        shipping_address=shipping_address,
-                        payment_method=payment_method,
-                    )
-
-               
-                cart_items.delete()
-
-              
-                return render(request, 'order_confirm.html', {
-                    'cart_item_prices': cart_item_prices,
-                    'total_amount': total_amount
-                })
-
-            else:
-               
-                return render(request, 'order_confirm.html', {
-                    'cart_items': cart_items,
-                    'error': 'Please provide a shipping address and payment method.'
-                })
-
-       
-        return render(request, 'order_confirm.html', {'cart_items': cart_items})
-
-    else:
-       
-        return redirect('cart') 
-
-
-def order_confirmation(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    return render(request, 'order_confirmation.html', {'order': order})
 
 def createuser(request):
     if request.method == "POST":
