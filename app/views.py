@@ -71,18 +71,28 @@ def view_cart(request):
         return redirect('userlogin')
 
 
-
 def search_bar(request):
+    query = request.GET.get('q', '') 
+    data = Product.objects.none() 
+    
+    if query:
+       
+        data = Product.objects.filter(
+            Q(product_name__icontains=query) 
+            
+        )   
+    return render(request, 'search.html', {'products': data, 'query': query})
+# def search_bar(request):
 
-    query = request.GET.get('q','')
-    data = Product.objects.none()
-    # categories = Category.objects.all()
+#     query = request.GET.get('q','')
+#     data = Product.objects.none()
+    
 
-    if query :
-        data = Product.objects.filter(product_name__icontains=query
-                                      )| Product.objects.filter(product_color__icontains=query)        
-        # categories = Category.objects.filter(name__icontains=query)
-    return render(request, 'index.html', {'products': data, 'query': query,})    
+#     if query :
+#         data = Product.objects.filter(product_name__icontains=query
+#                                       )| Product.objects.filter(product_color__icontains=query)        
+       
+#     return render(request, 'index.html', {'products': data, 'query': query,})    
 
 
 def Create_category(request):
@@ -241,9 +251,12 @@ def add_to_cart(request, product_id):
     product = Product.objects.get(id=product_id)
     quantity = int(request.POST.get('quantity', 1)) 
 
+    if product.stock == 0:
+        return HttpResponse("this product is out of stock")
+
     if quantity > product.stock:
         
-        return HttpResponse(f"Only {product.stock} items are available.", status=400)
+        return HttpResponse(f"Only {product.stock} items are available.")
 
    
     cart_item, created = AddToCart.objects.get_or_create(user=request.user, product=product)
@@ -272,15 +285,66 @@ def remove_from_cart(request, product_id):
     return redirect('cart')
 
 
+def proceed_order(request):
+    cart_items = AddToCart.objects.filter(user=request.user)
+    
+    if not cart_items:
+        return HttpResponse("Your cart is empty.")
+
+    total_amount = 0
+    for item in cart_items:
+        product = item.product
+        quantity = item.quantity
+        total_amount += product.product_price * quantity
+        item.total_price = product.product_price * quantity  
+
+    if request.method == "POST":
+        for item in cart_items:
+            product = item.product
+            quantity = item.quantity
+            total_amount += product.product_price * quantity
+
+            if product.stock >= quantity:
+                product.stock -= quantity
+                product.save()
+
+                
+                order = Order.objects.create(
+                    user=request.user,
+                    product=product,
+                    price=product.product_price,
+                    quantity=quantity,
+                    shipping_address=request.POST.get('shipping_address'),
+                    payment_method=request.POST.get('payment_method'),
+                    status='confirmed' 
+                )
+                order.save()
+
+        cart_items.delete()
+
+        return HttpResponse(f"Order placed successfully! Total amount: {total_amount}. Your cart has been cleared.")
+    
+    return render(request, 'proceed_order.html', {'cart_items': cart_items, 'total_amount': total_amount})
+
 
 def order_history(request):
+    orders = Order.objects.filter(user=request.user).order_by('-booking_date')  
+
    
-    orders = Order.objects.filter(user=request.user).order_by('-order_date') 
+    for order in orders:
+        order.total_price = order.quantity * order.price  
 
-    return render(request, 'order_confirm.html', {'orders': orders})
+    return render(request, 'order_history.html', {'orders': orders})
 
+def cancel_order(request,order_id):
+    order = get_object_or_404(Order, order=order_id, user=request.user)
 
+    if order.status == 'canceled':
 
+        return HttpResponse('order cancel')
+    order.cancel_order()
+
+    
 
 def createuser(request):
     if request.method == "POST":

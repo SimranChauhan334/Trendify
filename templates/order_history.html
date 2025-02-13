@@ -1,0 +1,53 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    
+</head>
+<body>
+
+    
+      <h1>Order History</h1>
+
+      {% if orders %}
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Product Name</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total Price</th>
+              <th>Shipping Address</th>
+              <th>Status</th>
+              <th>Order Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.product.product_name }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>${{ order.price }}</td>
+                <td>${{ order.total_price }}</td>
+                <td>{{ order.shipping_address }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.booking_date }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>You have no previous orders.</p>
+      {% endif %}
+      
+   
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proceed to Order</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Review Your Cart</h2>
+
+        {% if cart_items %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.product.product_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.product.product_price }}</td>
+                            <td>${{ item.total_price }}</td> 
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="Amount">
+                <h4>Total Amount: ${{ total_amount }}</h4>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form">
+                    <label for="shipping_address">Shipping Address</label>
+                    <textarea id="shipping_address" name="shipping_address" class="form-control" rows="4" required></textarea>
+                </div>
+
+                <div class="form">
+                    <label for="payment_method">Payment Method</label>
+                    <select id="payment_method" name="payment_method" class="control" required>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="phonepay">Phonepay</option>
+                        <option value="paytm">Paytm</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Place Order</button>
+            </form>
+        {% else %}
+            <p>Your cart is empty. Add items to the cart first.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
