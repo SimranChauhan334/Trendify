@@ -6,8 +6,9 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Category, SubCategory, Product, Profile,  ProductImage, Order, AddToCart
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.db.models import Sum
 from django.utils import timezone
+from django.db.models import Sum
+from django.core.paginator import Paginator
 
 
 
@@ -30,10 +31,15 @@ def product_list_page(request, subcategory_id):
     subcategory = get_object_or_404(SubCategory, id=subcategory_id)
    
     products = Product.objects.filter(subcategory=subcategory)
+    
+    page_number = request.GET.get("page")
+    paginator = Paginator(products, 3)
+    page_obj = paginator.get_page(page_number)
 
     return render(request, 'product_list.html', {
         'subcategory': subcategory,
-        'products': products
+        'products': products,
+        'page_obj':page_obj
     })
 
 
@@ -328,13 +334,17 @@ def proceed_order(request):
     return render(request, 'proceed_order.html', {'cart_items': cart_items, 'total_amount': total_amount})
 
 def order_history(request):
+   
     orders = Order.objects.filter(user=request.user).order_by('-booking_date')  
 
    
     for order in orders:
         order.total_price = order.quantity * order.price  
-
-    return render(request, 'order_history.html', {'orders': orders})
+    
+    paginator = Paginator(orders,3)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'order_history.html', {'page_obj':page_obj})
 
 
 def cancel_order(request,order_id):
