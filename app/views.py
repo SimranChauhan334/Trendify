@@ -6,10 +6,14 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Category, SubCategory, Product, Profile,  ProductImage, Order, AddToCart
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.db.models import Sum
+from django.utils import timezone
+
 
 
 def homepage(request):
     categories = Category.objects.all() 
+    # cart_count = AddToCart.objects.filter(user=request.user).aggregate(count=Sum('quantity'))['count'] or 0
     return render(request, 'index.html', {'categories': categories, 'user': request.user})
 
 
@@ -73,6 +77,7 @@ def view_cart(request):
 
 def search_bar(request):
     query = request.GET.get('q', '') 
+    
     data = Product.objects.none() 
     
     if query:
@@ -81,18 +86,7 @@ def search_bar(request):
             Q(product_name__icontains=query) 
             
         )   
-    return render(request, 'search.html', {'products': data, 'query': query})
-# def search_bar(request):
-
-#     query = request.GET.get('q','')
-#     data = Product.objects.none()
-    
-
-#     if query :
-#         data = Product.objects.filter(product_name__icontains=query
-#                                       )| Product.objects.filter(product_color__icontains=query)        
-       
-#     return render(request, 'index.html', {'products': data, 'query': query,})    
+    return render(request, 'search.html', {'products': data, 'query': query}) 
 
 
 def Create_category(request):
@@ -280,8 +274,10 @@ def remove_from_cart(request, product_id):
         return redirect('userlogin')
     
     cart_item = AddToCart.objects.filter(user=request.user, product_id=product_id).first()
-   
-    cart_item.delete()
+    
+    if cart_item:
+
+        cart_item.delete()
     return redirect('cart')
 
 
@@ -302,13 +298,14 @@ def proceed_order(request):
         for item in cart_items:
             product = item.product
             quantity = item.quantity
-            total_amount += product.product_price * quantity
 
             if product.stock >= quantity:
+              
                 product.stock -= quantity
                 product.save()
 
                 
+                delivery_date = request.POST.get('delivery_date')
                 order = Order.objects.create(
                     user=request.user,
                     product=product,
@@ -316,16 +313,19 @@ def proceed_order(request):
                     quantity=quantity,
                     shipping_address=request.POST.get('shipping_address'),
                     payment_method=request.POST.get('payment_method'),
-                    status='confirmed' 
+                    delivery_date=delivery_date,
+                    status='confirmed'
                 )
                 order.save()
 
+      
         cart_items.delete()
 
+        
         return HttpResponse(f"Order placed successfully! Total amount: {total_amount}. Your cart has been cleared.")
     
+    
     return render(request, 'proceed_order.html', {'cart_items': cart_items, 'total_amount': total_amount})
-
 
 def order_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-booking_date')  
@@ -336,15 +336,43 @@ def order_history(request):
 
     return render(request, 'order_history.html', {'orders': orders})
 
+
 def cancel_order(request,order_id):
-    order = get_object_or_404(Order, order=order_id, user=request.user)
-
-    if order.status == 'canceled':
-
-        return HttpResponse('order cancel')
-    order.cancel_order()
-
     
+    if not request.user.is_authenticated:
+        return redirect('userlogin')
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status == 'cancelled':
+        return HttpResponse('this order has been cancelled')
+
+    order.status = 'cancelled' 
+    order.save()
+
+    product = order.product
+    product.stock += order.quantity
+    product.save()
+
+    return HttpResponse('Your order has been successfully canceled.') 
+
+
+def mark_as_delivered(request, order_id):
+    if not request.user.is_authenticated:
+        return redirect('userlogin')
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status == 'delivered':
+        return HttpResponse('This order has already been marked as delivered.')
+
+    # Update the order status to 'delivered' and set the delivery date
+    order.status = 'delivered'
+    order.delivery_date = timezone.now()
+    order.save()
+
+    return HttpResponse('Your order has been delivered.')
+
 
 def createuser(request):
     if request.method == "POST":

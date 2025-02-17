@@ -43,7 +43,7 @@
                 {% csrf_token %}
                 <div class="form">
                     <label for="shipping_address">Shipping Address</label>
-                    <textarea id="shipping_address" name="shipping_address" class="form-control" rows="4" required></textarea>
+                    <textarea id="shipping_address" name="shipping_address" class="form-control" required></textarea>
                 </div>
 
                 <div class="form">
@@ -54,6 +54,8 @@
                         <option value="paytm">Paytm</option>
                         <option value="bank_transfer">Bank Transfer</option>
                     </select>
+                    <label for="delivery_date">Delivery Date:</label>
+                    <input type="date" name="delivery_date" id="delivery_date" required>
                 </div>
 
                 <button type="submit" class="btn">Place Order</button>

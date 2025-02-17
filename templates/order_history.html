@@ -4,50 +4,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order History</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order History</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .table {
+      width: 80%;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #e1f7d5;
+    }
+
+    button {
+      padding: 8px 12px;
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #ff1a1a;
+    }
+
+    span {
+      color: #999;
+    }
+
     
+    .status-pending {
+      color: orange;
+    }
+
+    .status-confirmed {
+      color: green;
+    }
+
+    .status-cancelled {
+      color: red;
+    }
+
+    
+    @media (max-width: 768px) {
+      .table {
+        width: 95%;
+        padding: 10px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
 </head>
 <body>
-
-    
-      <h1>Order History</h1>
-
-      {% if orders %}
-        <table>
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Product Name</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Total Price</th>
-              <th>Shipping Address</th>
-              <th>Status</th>
-              <th>Order Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for order in orders %}
-              <tr>
-                <td>{{ order.id }}</td>
-                <td>{{ order.product.product_name }}</td>
-                <td>{{ order.quantity }}</td>
-                <td>${{ order.price }}</td>
-                <td>${{ order.total_price }}</td>
-                <td>{{ order.shipping_address }}</td>
-                <td>{{ order.status }}</td>
-                <td>{{ order.booking_date }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p>You have no previous orders.</p>
-      {% endif %}
-      
-   
-
+  <div class="table">
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total Price</th>
+          <th>Status</th>
+          <th>Delivery Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.product.product_name }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>${{ order.price }}</td>
+            <td>${{ order.total_price }}</td>
+            
+            <td class="status-{{ order.status }}">{{ order.status }}</td>
+            <td>{{ order.delivery_date|date:"F j, Y" }}</td>
+            <td>
+              {% if order.status != 'cancelled' %}
+                <form action="{% url 'cancel_order' order.id %}" method="POST">
+                  {% csrf_token %}
+                  <button type="submit">Cancel Order</button>
+                </form>
+              {% else %}
+                <span>Order Already Canceled</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>
+
