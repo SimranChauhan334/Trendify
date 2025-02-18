@@ -14,8 +14,8 @@ from django.core.paginator import Paginator
 
 def homepage(request):
     categories = Category.objects.all() 
-    # cart_count = AddToCart.objects.filter(user=request.user).aggregate(count=Sum('quantity'))['count'] or 0
-    return render(request, 'index.html', {'categories': categories, 'user': request.user})
+    cart_count = AddToCart.objects.filter(user=request.user).aggregate(count=Sum('quantity'))['count'] or 0
+    return render(request, 'index.html', {'categories': categories, 'user': request.user, 'cart_count':cart_count})
 
 
 def sub_category(request, id):
@@ -285,6 +285,8 @@ def remove_from_cart(request, product_id):
 
         cart_item.delete()
     return redirect('cart')
+
+
 
 
 def proceed_order(request):
