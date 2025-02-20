@@ -51,11 +51,17 @@ urlpatterns = [
 
     # order urls
     path('order/', proceed_order, name="proceed_order"),
+    path('buy-now/<int:product_id>/',Buy_Now, name='Buy_Now'),
+    path('order/confirmation/<int:order_id>/', order_confirmation, name="order_confirmation"),
     path('order/cancel/<int:order_id>/', cancel_order, name='cancel_order'),
     path('history/', order_history, name="order_history"),
     path('mark_as_delivered/<int:order_id>/', mark_as_delivered, name='mark_as_delivered'),
-    path('search/', search_bar, name="search_bar"),
 
+    ## search ##
+    path('search/', search_bar, name="search_bar"),
+    
+    ## review ##
+    path('product/<int:product_id>/add_review/', add_review, name='add_review'),
    
     # User authentication Views #
     path('create_user/', createuser, name='create_user'),

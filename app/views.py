@@ -3,7 +3,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from .models import Category, SubCategory, Product, Profile,  ProductImage, Order, AddToCart
+from .models import Category, SubCategory, Product, Profile,  ProductImage, Order, AddToCart, Review
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
@@ -14,8 +14,8 @@ from django.core.paginator import Paginator
 
 def homepage(request):
     categories = Category.objects.all() 
-    cart_count = AddToCart.objects.filter(user=request.user).aggregate(count=Sum('quantity'))['count'] or 0
-    return render(request, 'index.html', {'categories': categories, 'user': request.user, 'cart_count':cart_count})
+    # cart_count = AddToCart.objects.filter(user=request.user).aggregate(count=Sum('quantity'))['count'] or 0
+    return render(request, 'index.html', {'categories': categories, 'user': request.user})
 
 
 def sub_category(request, id):
@@ -33,7 +33,7 @@ def product_list_page(request, subcategory_id):
     products = Product.objects.filter(subcategory=subcategory)
     
     page_number = request.GET.get("page")
-    paginator = Paginator(products, 3)
+    paginator = Paginator(products, 4)
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'product_list.html', {
@@ -287,8 +287,6 @@ def remove_from_cart(request, product_id):
     return redirect('cart')
 
 
-
-
 def proceed_order(request):
     cart_items = AddToCart.objects.filter(user=request.user)
     
@@ -329,11 +327,59 @@ def proceed_order(request):
       
         cart_items.delete()
 
-        
-        return HttpResponse(f"Order placed successfully! Total amount: {total_amount}. Your cart has been cleared.")
-    
+
+        return redirect('order_confirmation', order_id=order.id)
     
     return render(request, 'proceed_order.html', {'cart_items': cart_items, 'total_amount': total_amount})
+
+
+def Buy_Now(request, product_id):
+    if not request.user.is_authenticated:
+        return redirect('userlogin')
+
+    product = get_object_or_404(Product, id=product_id)
+
+    if product.stock <= 0:
+        return HttpResponse("This product is out of stock.")
+
+    if request.method == "POST":
+        quantity = int(request.POST.get('quantity', 1)) 
+        if quantity > product.stock:
+            return HttpResponse("Not enough stock available.")
+
+        shipping_address = request.POST.get('shipping_address')
+        payment_method = request.POST.get('payment_method')
+        delivery_date = request.POST.get('delivery_date', timezone.now() + timezone.timedelta(days=7))
+
+        
+        order = Order.objects.create(
+            user=request.user,
+            product=product,
+            quantity=quantity,
+            price=product.product_price,
+            shipping_address=shipping_address,
+            payment_method=payment_method,
+            delivery_date=delivery_date,
+            status='confirmed'
+        )
+
+       
+        product.stock -= quantity
+        product.save()
+
+        return redirect('order_confirmation', order_id=order.id)
+
+    return render(request, 'proceed_order.html', {
+        'product': product,
+        'is_buy_now': True  
+    })
+
+def order_confirmation(request,order_id):
+
+    order = get_object_or_404(Order, id=order_id)
+ 
+    total_price = order.quantity * order.price 
+    return render(request,"order_confirmation.html",{'order':order, 'total_proce':total_price})
 
 def order_history(request):
    
@@ -343,7 +389,7 @@ def order_history(request):
     for order in orders:
         order.total_price = order.quantity * order.price  
     
-    paginator = Paginator(orders,3)
+    paginator = Paginator(orders,4)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, 'order_history.html', {'page_obj':page_obj})
@@ -367,6 +413,26 @@ def cancel_order(request,order_id):
     product.save()
 
     return HttpResponse('Your order has been successfully canceled.') 
+
+
+def add_review(request,product_id):
+
+    if request.method == 'POST':
+        product = get_object_or_404(Product,id=product_id)
+
+        rating = int(request.POST["rating"])
+        review_text = request.POST["review_text"]
+
+        review = Review(
+            product = product,
+            user = request.user,
+            rating = rating,
+            review_text = review_text,
+        )
+        review.save()
+        
+        return redirect('product_detail', product_id=product.id)
+    return render(request, "add_review.html", {'product': product})
 
 
 def mark_as_delivered(request, order_id):

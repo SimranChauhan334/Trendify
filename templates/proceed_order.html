@@ -5,9 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proceed to Order</title>
+    <title>{% if is_buy_now %}Buy Now{% else %}Proceed to Order{% endif %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        /* Your existing styles */
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
@@ -94,7 +95,221 @@
             border: 1px solid #ccc;
         }
 
+        .product-img {
+            width: 100%; /* Adjust size to fit the layout */
+            height: auto; 
+            margin-bottom: 20px;
+        }
+
+        .product-detail-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .product-info {
+            width: 50%;
+            text-align: left;
+        }
+
+        .product-images {
+            width: 50%;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .product-detail-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .product-info, .product-images {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>{% if is_buy_now %}Buy Now - Product Review{% else %}Proceed to Order - Cart Review{% endif %}</h2>
+
+        {% if is_buy_now %}
+            <div class="product-detail-wrapper">
+                <div class="product-info">
+                    <h4>{{ product.product_name }}</h4>
+                    <p><strong>Price: ${{ product.product_price }}</strong></p>
+                    <p><strong>Quantity:</strong>
+                       <input type="number" name="quantity" value="1" min="1" max={{product.stock}} class="form-control" required>
+                    </p>
+                    <!-- <p><strong>Description:</strong> {{ product.product_description }}</p> -->
+                </div>
+                
+                <div class="product-images">
+                    <img src="{{ product.images.first.image.url }}" alt="{{ product.product_name }}" style="max-width: 100px; height: auto;">
+                    <!-- <img src="{{ product.images.first.image.url }}" alt="{{ product.product_name }}" class="product-img"> -->
+                </div>
+            </div>
+        {% else %}
+            {% if cart_items %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.product.product_name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.product.product_price }}</td>
+                                <td>${{ item.total_price }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="Amount">
+                    <h4>Total Amount: ${{ total_amount }}</h4>
+                </div>
+            {% else %}
+                <p>Your cart is empty. Add items to the cart first.</p>
+            {% endif %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form">
+                <label for="shipping_address">Shipping Address</label>
+                <textarea id="shipping_address" name="shipping_address" class="form-control" required></textarea>
+            </div>
+
+            <div class="form">
+                <label for="payment_method">Payment Method</label>
+                <select id="payment_method" name="payment_method" class="control" required>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="phonepay">Phonepay</option>
+                    <option value="paytm">Paytm</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                </select>
+            </div>
+
+            <div class="form">
+                <label for="delivery_date">Delivery Date</label>
+                <input type="date" name="delivery_date" id="delivery_date" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if is_buy_now %}
+                    Buy Now
+                {% else %}
+                    Place Order
+                {% endif %}
+            </button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if is_buy_now %}Buy Now{% else %}Proceed to Order{% endif %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin-top: 30px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        .table {
+            margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .table thead {
+            background-color: #f1f1f1;
+        }
+
+        .Amount {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .form {
+            margin-bottom: 15px;
+        }
+
+        .form label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .form input[type="date"] {
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
         .product-img {
             width: 50px; 
             height: auto; 
@@ -104,137 +319,81 @@
 </head>
 <body>
     <div class="container">
-        <h2>Review Your Cart</h2>
+        <h2>{% if is_buy_now %}Buy Now - Product Review{% else %}Proceed to Order - Cart Review{% endif %}</h2>
 
-        {% if cart_items %}
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
+        {% if is_buy_now %}
+            
+            <div class="product">
+                <h4>{{ product.product_name }}</h4>
+                <img src="{{ product.images.first.image.url }}" alt="{{ product.product_name }}" style="max-width: 100px; height: auto;">
+                
+                <p><strong>Price: ${{ product.product_price }}</strong></p>
+                <p><strong>Quantity: 1</strong></p>
+            </div>
+        {% else %}
+            
+            {% if cart_items %}
+                <table class="table table-bordered">
+                    <thead>
                         <tr>
-                            <td>
-                                
-                            
-                                {{ item.product.product_name }}
-                            </td>
-                            <td>{{ item.quantity }}</td>
-                            <td>${{ item.product.product_price }}</td>
-                            <td>${{ item.total_price }}</td> 
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total Price</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.product.product_name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.product.product_price }}</td>
+                                <td>${{ item.total_price }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-            <div class="Amount">
-                <h4>Total Amount: ${{ total_amount }}</h4>
+                <div class="Amount">
+                    <h4>Total Amount: ${{ total_amount }}</h4>
+                </div>
+            {% else %}
+                <p>Your cart is empty. Add items to the cart first.</p>
+            {% endif %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form">
+                <label for="shipping_address">Shipping Address</label>
+                <textarea id="shipping_address" name="shipping_address" class="form-control" required></textarea>
             </div>
 
-            <form method="POST">
-                {% csrf_token %}
-                <div class="form">
-                    <label for="shipping_address">Shipping Address</label>
-                    <textarea id="shipping_address" name="shipping_address" class="form-control" required></textarea>
-                </div>
+            <div class="form">
+                <label for="payment_method">Payment Method</label>
+                <select id="payment_method" name="payment_method" class="control" required>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="phonepay">Phonepay</option>
+                    <option value="paytm">Paytm</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                </select>
+            </div>
 
-                <div class="form">
-                    <label for="payment_method">Payment Method</label>
-                    <select id="payment_method" name="payment_method" class="control" required>
-                        <option value="credit_card">Credit Card</option>
-                        <option value="phonepay">Phonepay</option>
-                        <option value="paytm">Paytm</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                    </select>
-                </div>
+            <div class="form">
+                <label for="delivery_date">Delivery Date</label>
+                <input type="date" name="delivery_date" id="delivery_date" required>
+            </div>
 
-                <div class="form">
-                    <label for="delivery_date">Delivery Date</label>
-                    <input type="date" name="delivery_date" id="delivery_date" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Place Order</button>
-            </form>
-        {% else %}
-            <p>Your cart is empty. Add items to the cart first.</p>
-        {% endif %}
+            <button type="submit" class="btn btn-primary">
+                {% if is_buy_now %}
+                    Buy Now
+                {% else %}
+                    Place Order
+                {% endif %}
+            </button>
+        </form>
     </div>
 </body>
 </html>
 
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proceed to Order</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Review Your Cart</h2>
-
-        {% if cart_items %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                        <tr>
-                            <td>{{ item.product.product_name }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>${{ item.product.product_price }}</td>
-                            <td>${{ item.total_price }}</td> 
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            <div class="Amount">
-                <h4>Total Amount: ${{ total_amount }}</h4>
-            </div>
-
-            <form method="POST">
-                {% csrf_token %}
-                <div class="form">
-                    <label for="shipping_address">Shipping Address</label>
-                    <textarea id="shipping_address" name="shipping_address" class="form-control" required></textarea>
-                </div>
-
-                <div class="form">
-                    <label for="payment_method">Payment Method</label>
-                    <select id="payment_method" name="payment_method" class="control" required>
-                        <option value="credit_card">Credit Card</option>
-                        <option value="phonepay">Phonepay</option>
-                        <option value="paytm">Paytm</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                    </select>
-                    <label for="delivery_date">Delivery Date:</label>
-                    <input type="date" name="delivery_date" id="delivery_date" required>
-                </div>
-
-                <button type="submit" class="btn">Place Order</button>
-            </form>
-        {% else %}
-            <p>Your cart is empty. Add items to the cart first.</p>
-        {% endif %}
-    </div>
-</body>
-</html> -->
-
+ -->

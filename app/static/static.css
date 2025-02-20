@@ -249,13 +249,28 @@ button:hover {
 
 /* product list page */
 
+.create-product-btn {
+    display: inline-block;
+    margin: 20px;
+    padding: 10px 20px;
+    background-color: #e2a748;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.create-product-btn:hover {
+    background-color: #e67e22;
+}
 
 
 .product-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
-    padding: 100px;
+    padding: 20px;
 }
 
 .product-item {
@@ -265,58 +280,93 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 
 .product-item:hover {
     transform: translateY(-5px);
 }
 
+.product-item-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.product-name {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.product-price {
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 15px;
+}
 
 .product-image {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 15px; 
+    margin-bottom: 15px;
 }
 
 .product-image img {
     max-width: 100%;
-    max-height: 350px; 
-    object-fit: contain; 
+    max-height: 250px;
+    object-fit: cover;
     border-radius: 8px;
 }
 
-
-.product-name {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin: 10px 0;
-}
-
-.product-price {
-    font-size: 1.1em;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-
-.view-details-button, .edit-button {
+/* Edit Button */
+.edit-button {
     display: inline-block;
-    margin-top: 10px;
     padding: 10px 20px;
     background-color: #333;
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
     font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
     transition: background-color 0.3s;
 }
 
-.view-details-button:hover, .edit-button:hover {
-    background-color: #555;
+.edit-button:hover {
+    background-color: #f39c12;
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 8px 16px;
+    margin: 0 5px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 5px;
+    background-color: #f4f4f4;
+}
+
+.pagination a:hover {
+    background-color: #f39c12;
+    color: white;
+}
+
+.pagination .current-page {
+    background-color: #333;
+    color: white;
+}
+
+.pagination a:focus, .pagination a:hover {
+    outline: none;
+}
+
+.pagination a.current-page {
+    font-weight: bold;
 }
 
 
@@ -326,8 +376,6 @@ p {
     margin-top: 20px;
     color: #555;
 }
-
-
 /* Pagination Styles */
 .pagination {
     display: flex;

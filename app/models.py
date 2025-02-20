@@ -86,6 +86,17 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} by {self.user.username} - {self.status}"
 
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField()
+    review_text = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.product.product_name} by {self.user.username}"
+
+
 
 class Profile(models.Model):
     is_vendor = models.BooleanField(default=True)

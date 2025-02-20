@@ -1,6 +1,5 @@
 
 
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'static.css' %}">
     <title>Products in {{ subcategory.name }}</title>
-    
 </head>
 <body>
     <header>
@@ -17,18 +15,17 @@
     </header>
 
     {% if user.profile.is_vendor %}
-        <a href="/create-product/{{ subcategory.id }}">Create product</a>
+        <a href="/create-product/{{ subcategory.id }}" class="create-product-btn">Create Product</a>
     {% endif %}
     
     {% if products %}
         <div class="product-list">
-            
             {% for product in page_obj %}
-                <a href="/product_detail/{{ product.id }}" class="product-item-link">
-                    <div class="product-item">
+                <div class="product-item">
+                    <a href="/product_detail/{{ product.id }}" class="product-item-link">
                         <h2 class="product-name">{{ product.product_name }}</h2>
-                        <p class="product-price">Price: ${{ product.product_price }}</p>
-                        
+                        <p class="product-price">${{ product.product_price }}</p>
+
                         {% if product.images.all %}
                             <div class="product-image">
                                 <img src="{{ product.images.first.image.url }}" alt="{{ product.product_name }}">
@@ -36,13 +33,13 @@
                         {% else %}
                             <p>No images available.</p>
                         {% endif %}
+                    </a>
+                    <div class="product-actions">
+                        {% if user.profile.is_vendor %}
+                            <a href="/edit-product/{{ product.id }}" class="edit-button">Edit</a>
+                        {% endif %}
                     </div>
-                </a>
-                
-                {% if user.profile.is_vendor %}
-                    <a href="/edit-product/{{ product.id }}" class="edit-button">Edit</a>
-                {% endif %}
-                
+                </div>
             {% endfor %}
         </div>
 
@@ -81,9 +78,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'static.css' %}">
     <title>Products in {{ subcategory.name }}</title>
-    <style>
-        
-    </style>
+    
 </head>
 <body>
     <header>
@@ -98,37 +93,47 @@
         <div class="product-list">
             
             {% for product in page_obj %}
-                <div class="product-item">
-                    <h2>{{ product.product_name }}</h2>
-                    <p>Price: ${{ product.product_price }}</p>
-                    
-                    {% if product.images.all %}
-                        <div class="product-image">
-                            <img src="{{ product.images.first.image.url }}" alt="{{ product.product_name }}" width="150">
-                        </div>
-                    {% else %}
-                        <p>No images available.</p>
-                    {% endif %}
-                    
-                    <a href="/product_detail/{{ product.id }}">View Details</a>
-                    
+                <a href="/product_detail/{{ product.id }}" class="product-item-link">
+                    <div class="product-item">
+                        <h2 class="product-name">{{ product.product_name }}</h2>
+                        <p class="product-price">Price: ${{ product.product_price }}</p>
+                        
+                        {% if product.images.all %}
+                            <div class="product-image">
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.product_name }}">
+                            </div>
+                        {% else %}
+                            <p>No images available.</p>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="edit-btn">
                     {% if user.profile.is_vendor %}
-                        <a href="/edit-product/{{ product.id }}">Edit</a>
+                    <a href="/edit-product/{{ product.id }}" class="edit-button">Edit</a>
                     {% endif %}
-                    
                 </div>
+                 
+                
             {% endfor %}
         </div>
 
         <div class="pagination">
             {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                <a href="?page=1">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
             {% endif %}
-        
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <a href="?page={{ num }}" class="current-page">{{ num }}</a>
+                {% else %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
             {% endif %}
         </div>
 
@@ -137,6 +142,5 @@
     {% endif %}
 
 </body>
-</html>
-
+</html> 
  -->

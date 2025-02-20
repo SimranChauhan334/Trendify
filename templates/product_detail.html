@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,6 +231,7 @@
                                     <input type="number" name="quantity" id="quantity" min="1" max="{{ product.stock }}" value="1" required>
                                     <button type="submit" class="add-to-cart-button">Add to Cart</button>
                                     
+                                <a href="/buy-now/{{product.id}}/" class="buy-now-button">Buy Now</a>    
                                 </form>
                             {% endif %}
                         {% endif %}
