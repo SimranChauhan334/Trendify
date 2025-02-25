@@ -8,13 +8,14 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from django.db.models import Sum
+from django.db.models import Avg
 from django.core.paginator import Paginator
 
 
 
 def homepage(request):
     categories = Category.objects.all() 
-    # cart_count = AddToCart.objects.filter(user=request.user).aggregate(count=Sum('quantity'))['count'] or 0
+    
     return render(request, 'index.html', {'categories': categories, 'user': request.user})
 
 
@@ -46,8 +47,9 @@ def product_list_page(request, subcategory_id):
 def product_detail(request, product_id):
    
     product = get_object_or_404(Product, id=product_id)
+    reviews = Review.objects.filter(product=product)  
     
-   
+
     images = product.images.first()  
     
     
@@ -56,10 +58,27 @@ def product_detail(request, product_id):
     else:
         is_in_cart = False
 
+    page_number = request.GET.get("page")
+    paginator = Paginator(reviews,3)
+    page_obj = paginator.get_page(page_number)
+
+    average_rating = product.reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    star_range = range(1, 6)
+    
+    if average_rating:
+        average_rating = round(average_rating,1)
+    else:
+        average_rating = 0    
+
     return render(request, 'product_detail.html', {
         'product': product,
         'images': images,
-        'is_in_cart': is_in_cart  
+        'is_in_cart': is_in_cart,
+        'reviews' : reviews,
+        'page_obj' : page_obj,
+        'average_rating' : average_rating,
+        'star_range' : star_range,
+        
     })
 
 
@@ -174,6 +193,7 @@ def edit_sub_cat(request, subcategory_id):
         'subcategory': subcategory,
         'categories': categories
     })
+
 
 def create_product(request, subcategory_id):
     subcategory = get_object_or_404(SubCategory, id=subcategory_id) 
@@ -379,7 +399,10 @@ def order_confirmation(request,order_id):
     order = get_object_or_404(Order, id=order_id)
  
     total_price = order.quantity * order.price 
-    return render(request,"order_confirmation.html",{'order':order, 'total_proce':total_price})
+    return render(request,"order_confirmation.html",{'order':order, 
+    'total_proce':total_price,
+    'delivery_date':order.delivery_date})
+
 
 def order_history(request):
    
@@ -415,24 +438,71 @@ def cancel_order(request,order_id):
     return HttpResponse('Your order has been successfully canceled.') 
 
 
-def add_review(request,product_id):
-
+def add_review(request, product_id):
     if request.method == 'POST':
-        product = get_object_or_404(Product,id=product_id)
+        
+        product = get_object_or_404(Product, id=product_id)
 
-        rating = int(request.POST["rating"])
-        review_text = request.POST["review_text"]
+        rating = request.POST.get('rating')
+        review_text = request.POST.get("review_text")
 
+       
+        if rating is None or not rating.isdigit() or int(rating) not in range(1, 6):
+            return HttpResponse("Invalid rating.")
+
+       
+        if not review_text or len(review_text.strip()) == 0:
+            return HttpResponse("Review not availaible")
+
+      
         review = Review(
-            product = product,
-            user = request.user,
-            rating = rating,
-            review_text = review_text,
+            product=product,
+            user=request.user,
+            rating=int(rating),
+            review_text=review_text,
         )
         review.save()
         
+        
         return redirect('product_detail', product_id=product.id)
+
+   
+    product = get_object_or_404(Product, id=product_id)
     return render(request, "add_review.html", {'product': product})
+
+
+def edit_review(request,product_id,review_id):
+
+    product = get_object_or_404(Product, id = product_id)
+    review = get_object_or_404(Review, id = review_id, user=request.user)
+
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        review_text = request.POST.get('review_text')
+         
+        if rating is None or not rating.isdigit() or int(rating) not in range(1, 6):
+            return HttpResponse("Invalid rating.")
+
+        if not review_text or len(review_text.strip()) == 0:
+            return HttpResponse("Review not available.")
+        
+        review.rating = int(rating)
+        review.review_text = review_text
+        review.save()
+
+        
+        return redirect('product_detail', product_id=product.id)
+
+    return render(request, "add_review.html", {'product': product, 'review': review})
+
+
+def delete_review(request,product_id, review_id):
+
+    product = get_object_or_404(Product, id=product_id)
+
+    review = get_object_or_404(Review,id = review_id, product_id = product_id, user = request.user)
+    review.delete()
+    return redirect('product_detail', product_id=product_id)
 
 
 def mark_as_delivered(request, order_id):
@@ -442,9 +512,9 @@ def mark_as_delivered(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if order.status == 'delivered':
-        return HttpResponse('This order has already been marked as delivered.')
+        return HttpResponse('This order has beem delivered.')
 
-    # Update the order status to 'delivered' and set the delivery date
+    
     order.status = 'delivered'
     order.delivery_date = timezone.now()
     order.save()

@@ -62,6 +62,8 @@ urlpatterns = [
     
     ## review ##
     path('product/<int:product_id>/add_review/', add_review, name='add_review'),
+    path('product/<int:product_id>/edit_review/<int:review_id>/', edit_review, name='edit_review'),
+    path('product/<int:product_id>/review/<int:review_id>/delete/', delete_review, name='delete_review'),
    
     # User authentication Views #
     path('create_user/', createuser, name='create_user'),

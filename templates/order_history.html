@@ -1,331 +1,218 @@
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order History</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            padding-top: 50px;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: #343a40;
-            margin-bottom: 20px;
-        }
-
-        .order-summary {
-            margin-top: 20px;
-            padding-top: 10px;
-        }
-
-        .order-summary table {
-            width: 100%;
-        }
-
-        .btn {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .pagination {
-            margin-top: 20px;
-        }
-
-        .pagination .btn {
-            margin: 0 5px;
-        }
-
-        .pagination .disabled {
-            cursor: not-allowed;
-            background-color: #ddd;
-        }
-
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Your Order History</h2>
-
-        {% if page_obj %}
-            <div class="order-summary">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Image</th>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Total Price</th>
-                            <th>Status</th>
-                            <th>Delivery Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in page_obj %}
-                            <tr>
-                                <td>{{ order.id }}</td>
-                                <td>
-                                    {% if order.product.images.first %}
-                                        <img src="{{ order.product.images.first.image.url }}" alt="{{ order.product.product_name }}" style="max-width: 100px; height: auto;">
-                                    {% else %}
-                                        <span>No Image Available</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ order.product.product_name }}</td>
-                                <td>{{ order.quantity }}</td>
-                                <td>${{ order.total_price }}</td>
-                                <td class="status-{{ order.status }}">{{ order.status }}</td>
-                                <td>{{ order.delivery_date|date:"F j, Y" }}</td>
-                                <td>
-                                    {% if order.status != 'cancelled' %}
-                                    <form action="{% url 'cancel_order' order.id %}" method="POST">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Cancel Order</button>
-                                    </form>
-                                    {% else %}
-                                    <span>Order Already Canceled</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="8" class="text-center">No orders found.</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="pagination">
-                <span class="btn {% if not page_obj.has_previous %}disabled{% endif %}">
-                    {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" class="text-white">Previous</a>
-                    {% else %}
-                        Previous
-                    {% endif %}
-                </span>
-
-                <span class="btn {% if not page_obj.has_next %}disabled{% endif %}">
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="text-white">Next</a>
-                    {% else %}
-                        Next
-                    {% endif %}
-                </span>
-            </div>
-
-        {% else %}
-            <p>You don't have any orders yet.</p>
-        {% endif %}
-    </div>
-</body>
-</html>
 
 
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order History</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-    }
-
-    .table {
-      width: 80%;
-      margin: 50px auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th,
-    td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-
-    th {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-
-    tr:hover {
-      background-color: #e1f7d5;
-    }
-
-    button {
-      padding: 8px 12px;
-      background-color: #ff4d4d;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    button:hover {
-      background-color: #ff1a1a;
-    }
-
-    span {
-      color: #999;
-    }
-
-    .status-pending {
-      color: orange;
-    }
-
-    .status-confirmed {
-      color: green;
-    }
-
-    .status-cancelled {
-      color: red;
-    }
-
-    .pagination {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .pagination a {
-      margin: 0 5px;
-      padding: 8px 12px;
-      text-decoration: none;
-      background-color: #4CAF50;
-      color: white;
-      border-radius: 5px;
-    }
-
-    .pagination a:hover {
-      background-color: #45a049;
-    }
-
-    .pagination .current-page {
-      font-weight: bold;
-    }
-
-    @media (max-width: 768px) {
-      .table {
-        width: 95%;
-        padding: 10px;
-      }
-
-      table {
-        font-size: 14px;
-      }
-
-      th,
-      td {
-        padding: 8px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="table">
-    <table>
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Product Name</th>
-          <th>Quantity</th>
-          <th>Price</th>
-          <th>Total Price</th>
-          <th>Status</th>
-          <th>Delivery Date</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for order in page_obj %}
-        <tr>
-          <td>{{ order.id }}</td>
-          <td>{{ order.product.product_name }}</td>
-          <td>{{ order.quantity }}</td>
-          <td>${{ order.price }}</td>
-          <td>${{ order.total_price }}</td>
-
-          <td class="status-{{ order.status }}">{{ order.status }}</td>
-          <td>{{ order.delivery_date|date:"F j, Y" }}</td>
-          <td>
-            {% if order.status != 'cancelled' %}
-            <form action="{% url 'cancel_order' order.id %}" method="POST">
-              {% csrf_token %}
-              <button type="submit">Cancel Order</button>
-            </form>
-            {% else %}
-            <span>Order Already Canceled</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="8">No orders found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-   
-    {% if page_obj.has_other_pages %}
-    <div class="pagination">
-      {% if page_obj.has_previous %}
-      <a href="?page=1">&laquo; First</a>
-      <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
-      {% endif %}
-
-      <span class="current-page">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-
-      {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}">Next</a>
-      <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
-      {% endif %}
-    </div>
-    {% endif %}
-  </div>
-</body>
-
-</html>
- -->
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Order History</title>
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+     <style>
+         body {
+             font-family: 'Arial', sans-serif;
+             background-color: #f4f7fa;
+             padding-top: 30px;
+         }
+ 
+         .container {
+             max-width: 900px;
+             background-color: #ffffff;
+             padding: 20px;
+             border-radius: 10px;
+             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+             margin: auto;
+         }
+ 
+         h2 {
+             color: #333;
+             text-align: center;
+             margin-bottom: 30px;
+             font-size: 26px;
+             font-weight: 600;
+         }
+ 
+         .order-card {
+             margin-top: 20px;
+             display: flex;
+             flex-direction: column;
+             gap: 15px;
+         }
+ 
+         .card {
+             border: 1px solid #ddd;
+             border-radius: 8px;
+             overflow: hidden;
+             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+             padding: 15px;
+             display: flex;
+             flex-direction: column;
+             justify-content: space-between;
+             position: relative;
+             transition: transform 0.3s ease;
+         }
+ 
+         .card:hover {
+             transform: translateY(-5px);
+         }
+ 
+         .card img {
+             max-width: 120px;
+             height: auto;
+             margin-right: 20px;
+             border-radius: 10px;
+         }
+ 
+         .card-details {
+             flex: 1;
+         }
+ 
+         .card-title {
+             font-size: 18px;
+             font-weight: bold;
+             color: #333;
+             margin-bottom: 10px;
+         }
+ 
+         .order-actions {
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             align-items: flex-end;
+             gap: 5px;
+         }
+ 
+         .btn {
+             padding: 8px 16px;
+             border-radius: 5px;
+             font-weight: 600;
+             text-decoration: none;
+         }
+ 
+         .btn-primary {
+             background-color: #007bff;
+             color: white;
+         }
+ 
+         .btn-danger {
+             background-color: #f44336;
+             color: white;
+         }
+ 
+        
+         .order-status {
+             font-size: 14px;
+             font-weight: 600;
+             padding: 5px 10px;
+             border-radius: 5px;
+             text-transform: uppercase;
+             margin-top: 20px;
+             text-align: left;
+         }
+ 
+         .status-confirmed {
+             color: #4dbd74; 
+         }
+ 
+         .status-pending {
+             color: #ffdd57;
+         }
+ 
+         .status-shipped {
+             color: #007bff;
+         }
+ 
+         .status-cancelled {
+             color: #f96f6f;
+         }
+ 
+         .pagination {
+             margin-top: 30px;
+             display: flex;
+             justify-content: center;
+         }
+ 
+         .pagination .btn {
+             padding: 8px 16px;
+             margin: 0 5px;
+             background-color: #007bff;
+             color: white;
+             border-radius: 5px;
+             cursor: pointer;
+         }
+ 
+         .pagination .disabled {
+             cursor: not-allowed;
+             background-color: #ddd;
+         }
+ 
+     </style>
+ </head>
+ <body>
+     <div class="container">
+         <h2>Your Order History</h2>
+ 
+         {% if page_obj %}
+             <div class="order-card">
+                 {% for order in page_obj %}
+                     <div class="card">
+                         <div class="d-flex">
+                             <img src="{{ order.product.images.first.image.url }}" alt="{{ order.product.product_name }}">
+                             <div class="card-details">
+                                 <h5 class="card-title">{{ order.product.product_name }}</h5>
+                                 <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                                 <p><strong>Total:</strong> ${{ order.total_price }}</p>
+                                 <p><strong>Delivery Date:</strong> {{ order.delivery_date|date:"F j, Y" }}</p>
+                             </div>
+                         </div>
+ 
+                         
+                         <div class="order-actions">
+                             {% if order.status != 'cancelled' %}
+                                 <form action="{% url 'cancel_order' order.id %}" method="POST">
+                                     {% csrf_token %}
+                                     <button type="submit" class="btn btn-danger">Cancel Order</button>
+                                 </form>
+                             {% else %}
+                                 <span>Order Already Cancelled</span>
+                             {% endif %}
+                         </div>
+ 
+                        
+                         <div class="order-status 
+                             {% if order.status == 'confirmed' %}status-confirmed
+                             {% elif order.status == 'shipped' %}status-shipped
+                             {% elif order.status == 'cancelled' %}status-cancelled
+                             {% else %}status-pending{% endif %}">
+                             {{ order.status|title }}
+                         </div>
+                     </div>
+                 {% endfor %}
+             </div>
+ 
+             <div class="pagination">
+                 <button class="btn {% if not page_obj.has_previous %}disabled{% endif %}">
+                     {% if page_obj.has_previous %}
+                         <a href="?page={{ page_obj.previous_page_number }}" class="text-white">Previous</a>
+                     {% else %}
+                         Previous
+                     {% endif %}
+                 </button>
+ 
+                 <button class="btn {% if not page_obj.has_next %}disabled{% endif %}">
+                     {% if page_obj.has_next %}
+                         <a href="?page={{ page_obj.next_page_number }}" class="text-white">Next</a>
+                     {% else %}
+                         Next
+                     {% endif %}
+                 </button>
+             </div>
+ 
+         {% else %}
+             <p class="text-center">You don't have any orders yet.</p>
+         {% endif %}
+     </div>
+ </body>
+ </html>
+ 

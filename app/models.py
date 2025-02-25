@@ -63,6 +63,7 @@ class Order(models.Model):
         ('Delivered', 'Delivered'),
         ('confirmed', 'confirmed'),
         ('cancelled', 'cancelled'),
+        ('pending', 'pending'),
     ]
 
     PAYMENT_METHODS = [
@@ -87,15 +88,11 @@ class Order(models.Model):
         return f"Order {self.id} by {self.user.username} - {self.status}"
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.PositiveIntegerField()
-    review_text = models.TextField(null=True,blank=True)
+    rating = models.IntegerField(default=1, choices=[(i, i) for i in range(1, 6)]) 
+    review_text = models.TextField(blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Review for {self.product.product_name} by {self.user.username}"
-
 
 
 class Profile(models.Model):
