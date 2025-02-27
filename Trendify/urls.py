@@ -22,9 +22,24 @@ from app.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
+from rest_framework import routers
+
+
+router = routers.DefaultRouter()
+ 
+# define the router path and viewset to be used
+router.register(r'products', ProductViewset)
+router.register(r'category', CategoryViewset)
+router.register(r'subcategory', SubCategoryViewset)
+router.register(r'user', UserViewset)
+
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage, name='homepage'),
+    path('api/', include(router.urls)),
    
 
     # Category Views #
@@ -70,6 +85,7 @@ urlpatterns = [
     path('login/', userlogin, name="userlogin"),
     path('logout/', userlogout, name="userlogout"),
     path('profile/', get_profile, name='get_profile'),
+    path('api-auth/', include('rest_framework.urls'))
     
 
 ] + static(settings.STATIC_URL, documents_root= settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

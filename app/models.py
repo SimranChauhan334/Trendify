@@ -60,7 +60,7 @@ class AddToCart(models.Model):
 
 class Order(models.Model):
     STATUS = [
-        ('Delivered', 'Delivered'),
+        ('delivered', 'delivered'),
         ('confirmed', 'confirmed'),
         ('cancelled', 'cancelled'),
         ('pending', 'pending'),

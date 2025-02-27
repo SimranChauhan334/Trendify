@@ -10,6 +10,31 @@ from django.utils import timezone
 from django.db.models import Sum
 from django.db.models import Avg
 from django.core.paginator import Paginator
+from datetime import date
+from rest_framework.viewsets import ModelViewSet
+from .serializer import *
+
+
+
+class ProductViewset(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    # def create(self, request, *args, **kwargs):
+    #     return 
+    
+
+class CategoryViewset(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class SubCategoryViewset(ModelViewSet):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
+
+class UserViewset(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer            
 
 
 
@@ -405,17 +430,20 @@ def order_confirmation(request,order_id):
 
 
 def order_history(request):
-   
-    orders = Order.objects.filter(user=request.user).order_by('-booking_date')  
+    orders = Order.objects.filter(user=request.user).order_by('-booking_date')
 
    
     for order in orders:
-        order.total_price = order.quantity * order.price  
-    
-    paginator = Paginator(orders,4)
+        order.total_price = order.quantity * order.price
+        order.is_delivered = order.delivery_date <= date.today()  
+
+    paginator = Paginator(orders, 4)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, 'order_history.html', {'page_obj':page_obj})
+
+    return render(request, 'order_history.html', {'page_obj': page_obj})
+
+
 
 
 def cancel_order(request,order_id):
@@ -505,21 +533,27 @@ def delete_review(request,product_id, review_id):
     return redirect('product_detail', product_id=product_id)
 
 
+
 def mark_as_delivered(request, order_id):
-    if not request.user.is_authenticated:
-        return redirect('userlogin')
+    order = get_object_or_404(Order, id=order_id)
 
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if order.delivery_date <= date.today() and order.status != 'delivered':
+       
+        order.status = 'delivered'
+        order.delivered_date = timezone.now()  
+        order.save()
+        is_delivered = True
+        is_delivered_order_id = order.id
+    else:
+        is_delivered = False
+        is_delivered_order_id = order.id
 
-    if order.status == 'delivered':
-        return HttpResponse('This order has beem delivered.')
+    return render(request, "order_history.html", {
+        'order': order,
+        'is_delivered': is_delivered,
+        'is_delivered_order_id':is_delivered_order_id,
+    })
 
-    
-    order.status = 'delivered'
-    order.delivery_date = timezone.now()
-    order.save()
-
-    return HttpResponse('Your order has been delivered.')
 
 
 def createuser(request):
@@ -629,6 +663,4 @@ def get_profile(request):
         return render(request, "profile.html",{'user': request.user,'is_vendor':is_vendor})
     else:
         return redirect('userlogin')        
-# def get_profile(request):
-#     # print(f"Is vendor: {request.user.profile.is_vendor}")
-#     return render(request,'profile.html',{'user':request.user})
+    

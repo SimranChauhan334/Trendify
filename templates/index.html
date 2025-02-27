@@ -1,5 +1,6 @@
 
 {% load static %}
+{% load cart_counts %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,6 +20,7 @@
     <div class="container">
         
         <div class="sidebar">
+            
             {% if user.is_authenticated %}
                 {% if user.profile.is_vendor %}
                     <a href="/create/">Create Category</a>
@@ -47,7 +49,7 @@
             
             <a href="/cart/">
                 <i class="fa-solid fa-cart-plus cart-icon"></i>
-                <span class="cart-count">{{ cart_count }}</span>
+                {% count_cart request %}                
             </a>
         </div>
         
