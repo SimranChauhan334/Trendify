@@ -65,6 +65,7 @@
                             {% if category.image %}
                                 {% if user.profile.is_vendor %}
                                     <a href="/category/edit/{{ category.id }}">Edit</a>
+                                    <a href="/category/delete/{{ category.id }}">Delete</a>
                                 {% endif %}
                                 <img src="{{ category.image.url }}" alt="{{ category.name }}" style="max-width: 150px; height: auto;">
                             {% else %}

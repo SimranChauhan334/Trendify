@@ -1,0 +1,25 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Subcategory</title>
+</head>
+<body>
+    <h2>Are you sure you want to delete this Subcategory?</h2>
+
+    <p>Subcategory: {{ subcategory.name }}</p>
+    <img src="{{subcategory.image.url}}" alt="subcategory.name" width="100">
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+    </form>
+
+    <a href="/">cancel</a>
+
+    
+</body>
+</html>

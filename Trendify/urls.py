@@ -45,11 +45,13 @@ urlpatterns = [
     # Category Views #
     path('create/', Create_category, name='Create_category'),
     path('category/edit/<int:id>/', Edit_cat, name='edit_category'),
+    path('category/delete/<int:id>/', Delete_cat, name='delete_cat'),
 
     # Subcategory Views #
     path('sub_category/<int:id>/', sub_category, name="sub_category"), 
     path('create_subcategory/<int:id>/', create_subcategory, name="create_subcategory"), 
     path('edit_sub_cat/<int:subcategory_id>/', edit_sub_cat, name="edit_sub_category"), 
+    path('subcategory/delete/<int:subcategory_id>/', Delete_subcategory,  name="delete_subcategory"),
     
    
     ## product_page ##
@@ -57,6 +59,7 @@ urlpatterns = [
     path('product_detail/<int:product_id>/', product_detail, name='product_detail'),
     path('create-product/<int:subcategory_id>/', create_product, name='create_product'),
     path('edit-product/<int:product_id>/', Edit_product_page, name='edit_product'),
+    path('product/delete/<int:product_id>/', Delete_product, name="delete_product"),
        
    
    ## cart options ##
@@ -85,6 +88,7 @@ urlpatterns = [
     path('login/', userlogin, name="userlogin"),
     path('logout/', userlogout, name="userlogout"),
     path('profile/', get_profile, name='get_profile'),
+    path('profile/edit/', edit_profile, name='edit_profile'),
     path('api-auth/', include('rest_framework.urls'))
     
 

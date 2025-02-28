@@ -171,6 +171,19 @@ def Edit_cat(request, id):
     return render(request, 'edit_cat.html', {'category': category_instance})
 
 
+def Delete_cat(request,id):
+
+    category_instance = get_object_or_404(Category,id=id)
+    # print(f"User {{request.user}} {category_instance.name}")
+
+    if request.method == "POST":
+        # print(f"Deleting category: {category_instance.name}")
+        category_instance.delete()
+
+        return redirect("homepage")
+    
+    return render(request, 'delete_cat.html', {'category': category_instance})
+    
 def create_subcategory(request, id):
     category_instance = Category.objects.get(id=id) 
 
@@ -188,7 +201,6 @@ def create_subcategory(request, id):
         return redirect('homepage')    
     
     return render(request, 'create_sub_category.html', {'category': category_instance})
-
 
 
 def edit_sub_cat(request, subcategory_id):
@@ -218,6 +230,18 @@ def edit_sub_cat(request, subcategory_id):
         'subcategory': subcategory,
         'categories': categories
     })
+
+
+def Delete_subcategory(request, subcategory_id):
+
+    subcategory = get_object_or_404(SubCategory, id = subcategory_id)
+
+    if request.method == 'POST':
+        subcategory.delete()
+
+        return redirect("homepage")
+    
+    return render(request, 'delete_subcategory.html', {'subcategory':subcategory})
 
 
 def create_product(request, subcategory_id):
@@ -290,7 +314,14 @@ def Edit_product_page(request, product_id):
 
     return render(request, 'edit_product_page.html', {'product': product})
 
+def Delete_product(request,product_id):
 
+    product = get_object_or_404(Product, id = product_id)
+    if request.method == "POST":
+        product.delete()
+
+        return redirect('homepage')
+    return render(request, 'delete_product.html', {'product':product})
 
 def add_to_cart(request, product_id):
     product = Product.objects.get(id=product_id)
@@ -661,6 +692,39 @@ def get_profile(request):
             is_vendor = False
 
         return render(request, "profile.html",{'user': request.user,'is_vendor':is_vendor})
+    else:
+        return redirect('userlogin')    
+    
+
+def edit_profile(request):
+    if request.user.is_authenticated:
+        try:
+            profile_instance = request.user.profile
+            is_vendor = profile_instance.is_vendor
+        except Profile.DoesNotExist:
+            is_vendor = False
+
+        if request.method == "POST":
+          
+            profile_instance.first_name = request.POST.get('first_name', profile_instance.first_name)
+            profile_instance.last_name = request.POST.get('last_name', profile_instance.last_name)
+            profile_instance.email = request.POST.get('email', profile_instance.email)
+            profile_instance.is_vendor = request.POST.get('is_vendor') 
+            
+            
+            if 'profile_picture' in request.FILES:
+                profile_instance.profile_picture = request.FILES['profile_picture']
+            
+           
+            profile_instance.save()
+            
+            return redirect('profile') 
+
+        return render(request, "edit_profile.html", {
+            'user': request.user,
+            'is_vendor': is_vendor,
+            'profile_instance': profile_instance 
+        })
     else:
         return redirect('userlogin')        
     

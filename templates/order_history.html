@@ -184,10 +184,10 @@
                           <div class="order-actions">
                               {% if order.status != 'cancelled' %}
 
-                                  <!-- <form action="{% url 'cancel_order' order.id %}" method="POST">
+                                  <form action="{% url 'cancel_order' order.id %}" method="POST">
                                       {% csrf_token %}
                                       <button type="submit" class="btn-cancel ">Cancel Order</button>
-                                  </form> -->
+                                  </form>
                               {% else %}
                                   <span>Order Already Cancelled</span>
                               {% endif %}

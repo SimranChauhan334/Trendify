@@ -47,6 +47,7 @@
                 </div>
                 {% if user.profile.is_vendor %}
                    <a href="/edit_sub_cat/{{ subcategory.id }}">Edit Category</a>
+                   <a href="/subcategory/delete/{{ subcategory.id }}">Delete category</a>
                 {% endif %}   
                
             </div>

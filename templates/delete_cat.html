@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Category</title>
+</head>
+<body>
+    <h2>Are you sure you want to delete this Category?</h2>
+
+    <p>Category: {{ category.name }}</p>
+    <img src="{{ category.image.url }}" alt="{{ category.name }}" width="100">
+
+  
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+    </form>
+
+   
+    <a href="/">Cancel</a>
+</body>
+</html>
