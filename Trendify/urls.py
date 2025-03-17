@@ -28,10 +28,13 @@ from rest_framework import routers
 router = routers.DefaultRouter()
  
 # define the router path and viewset to be used
-router.register(r'products', ProductViewset)
+
+router.register(r'user', UserViewset)
 router.register(r'category', CategoryViewset)
 router.register(r'subcategory', SubCategoryViewset)
-router.register(r'user', UserViewset)
+router.register(r'products', ProductViewset)
+router.register(r'product-images', ProductImageViewset)
+# router.register(r'cart', AddToCartViewSet)
 
 
 
@@ -82,13 +85,16 @@ urlpatterns = [
     path('product/<int:product_id>/add_review/', add_review, name='add_review'),
     path('product/<int:product_id>/edit_review/<int:review_id>/', edit_review, name='edit_review'),
     path('product/<int:product_id>/review/<int:review_id>/delete/', delete_review, name='delete_review'),
-   
+    
+    ## profile ## 
+
+    path('profile/', get_profile, name='get_profile'),
+    path('profile/edit/', edit_profile, name='edit_profile'),
+    
     # User authentication Views #
     path('create_user/', createuser, name='create_user'),
     path('login/', userlogin, name="userlogin"),
     path('logout/', userlogout, name="userlogout"),
-    path('profile/', get_profile, name='get_profile'),
-    path('profile/edit/', edit_profile, name='edit_profile'),
     path('api-auth/', include('rest_framework.urls'))
     
 

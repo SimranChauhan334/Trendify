@@ -15,14 +15,9 @@ from rest_framework.viewsets import ModelViewSet
 from .serializer import *
 
 
-
-class ProductViewset(ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-
-    # def create(self, request, *args, **kwargs):
-    #     return 
-    
+class UserViewset(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer  
 
 class CategoryViewset(ModelViewSet):
     queryset = Category.objects.all()
@@ -32,11 +27,21 @@ class SubCategoryViewset(ModelViewSet):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
 
-class UserViewset(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer            
+class ProductImageViewset(ModelViewSet):
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageSerializer
 
+class ProductViewset(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
+    # def create(self, request, *args, **kwargs):
+    #     return       
+
+# class AddToCartViewSet(ModelViewSet):
+#     queryset = AddToCart.objects.all()
+#     serializer_class = AddToCartSerializer
+    
 
 def homepage(request):
     categories = Category.objects.all() 
@@ -703,19 +708,15 @@ def edit_profile(request):
             is_vendor = profile_instance.is_vendor
         except Profile.DoesNotExist:
             is_vendor = False
-
+        
         if request.method == "POST":
-          
+            profile_instance.username = request.POST.get('username',profile_instance.username)
             profile_instance.first_name = request.POST.get('first_name', profile_instance.first_name)
             profile_instance.last_name = request.POST.get('last_name', profile_instance.last_name)
             profile_instance.email = request.POST.get('email', profile_instance.email)
             profile_instance.is_vendor = request.POST.get('is_vendor') 
             
             
-            if 'profile_picture' in request.FILES:
-                profile_instance.profile_picture = request.FILES['profile_picture']
-            
-           
             profile_instance.save()
             
             return redirect('profile') 
@@ -723,7 +724,7 @@ def edit_profile(request):
         return render(request, "edit_profile.html", {
             'user': request.user,
             'is_vendor': is_vendor,
-            'profile_instance': profile_instance 
+            'profile_instance': profile_instance,
         })
     else:
         return redirect('userlogin')        
