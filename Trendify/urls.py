@@ -34,7 +34,10 @@ router.register(r'category', CategoryViewset)
 router.register(r'subcategory', SubCategoryViewset)
 router.register(r'products', ProductViewset)
 router.register(r'product-images', ProductImageViewset)
-# router.register(r'cart', AddToCartViewSet)
+router.register(r'cart', AddToCartViewSet)
+router.register(r'order',OrderViewset)
+router.register(r'review', ReviewViewset)
+router.register(r'profile', ProfileViewSet)
 
 
 
@@ -95,8 +98,9 @@ urlpatterns = [
     path('create_user/', createuser, name='create_user'),
     path('login/', userlogin, name="userlogin"),
     path('logout/', userlogout, name="userlogout"),
-    path('api-auth/', include('rest_framework.urls'))
-    
+    path('api-auth/', include('rest_framework.urls')),
+    path('ajax/',ajax_page),
+    path('ajex/',ajex_page),
 
 ] + static(settings.STATIC_URL, documents_root= settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

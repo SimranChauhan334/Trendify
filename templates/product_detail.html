@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.product_name }} - Product Detail</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
     <style>
@@ -58,7 +59,7 @@
             justify-content: flex-start;
         }
 
-        .thumbnail {
+        .small_size {
             width: 100px;
             height: 100px;
             object-fit: cover;
@@ -255,7 +256,7 @@
         <div class="product-detail">
             <div class="product-images">
                 {% for image in product.images.all %}
-                    <img src="{{ image.image.url }}" alt="{{ product.product_name }}" class="thumbnail" onclick="changeImage('{{ image.image.url }}')">
+                    <img src="{{ image.image.url }}" alt="{{ product.product_name }}" class="small_size" data-image="{{ image.image.url }}">
                 {% endfor %}
             </div>
 
@@ -353,6 +354,24 @@
 
         <a href="/" class="back-link">Homepage</a>
     </div>
+
+    <script>
+        $(document).ready(function(){
+            // console.log("jQuery is loaded!");
+    
+           
+            $(".small_size").click(function(){
+                var new_image = $(this).data("image");
+                // console.log("Clicked image URL: ", new_image);  
+    
+                
+                $("#main-image").attr("src", new_image);
+                // console.log("Main image src updated to: ", $("#main-image").attr("src"));
+            });
+        });
+    </script>
+    
+    
 
 </body>
 </html>

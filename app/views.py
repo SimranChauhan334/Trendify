@@ -4,6 +4,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from .models import Category, SubCategory, Product, Profile,  ProductImage, Order, AddToCart, Review
+from .models import AddToCart
+
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
@@ -12,6 +14,8 @@ from django.db.models import Avg
 from django.core.paginator import Paginator
 from datetime import date
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework import status
 from .serializer import *
 
 
@@ -31,6 +35,7 @@ class ProductImageViewset(ModelViewSet):
     queryset = ProductImage.objects.all()
     serializer_class = ProductImageSerializer
 
+
 class ProductViewset(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -38,10 +43,68 @@ class ProductViewset(ModelViewSet):
     # def create(self, request, *args, **kwargs):
     #     return       
 
-# class AddToCartViewSet(ModelViewSet):
-#     queryset = AddToCart.objects.all()
-#     serializer_class = AddToCartSerializer
-    
+class AddToCartViewSet(ModelViewSet):
+    queryset = AddToCart.objects.all()
+    serializer_class = AddToCartSerializer
+
+
+class OrderViewset(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+
+class ReviewViewset(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+
+    def create(self, request, *args, **kwargs):
+        review_text = request.data['review_text']
+        rating = request.data['rating']
+        product_id = request.data['product_id']
+
+        # print(review_text,rating,product_id)
+
+        review = Review.objects.create(
+            product_id = product_id,
+            user_id = 1,
+            review_text = review_text,
+            rating = rating
+        )
+
+        review.save()
+
+        s = ReviewSerializer(review)
+        return Response(s.data,status=status.HTTP_201_CREATED)
+
+
+
+        # ReviewSerializer(
+
+        # )
+        
+
+        # serializer = self.get_serializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_create(serializer)
+        # headers = self.get_success_headers(serializer.data)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    # def perform_create(self, serializer):
+    #     serializer.save()
+
+    # def get_success_headers(self, data):
+    #     try:
+    #         return {'Location': str(data[api_settings.URL_FIELD_NAME])}
+    #     except (TypeError, KeyError):
+    #         return {}
+
+
+class ProfileViewSet(ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+     
+
 
 def homepage(request):
     categories = Category.objects.all() 
@@ -89,7 +152,7 @@ def product_detail(request, product_id):
         is_in_cart = False
 
     page_number = request.GET.get("page")
-    paginator = Paginator(reviews,3)
+    paginator = Paginator(reviews,2)
     page_obj = paginator.get_page(page_number)
 
     average_rating = product.reviews.aggregate(Avg('rating'))['rating__avg'] or 0
@@ -729,3 +792,9 @@ def edit_profile(request):
     else:
         return redirect('userlogin')        
     
+
+def ajax_page(request):
+    return render (request, 'new_page.html')
+
+def ajex_page(request):
+    return render(request,'ajex.html')

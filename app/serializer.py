@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 
 
+   
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -38,8 +39,33 @@ class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
         model = ProductImage
         fields = ('id','product','image')
 
-class AddToCart(serializers.HyperlinkedModelSerializer):
+class AddToCartSerializer(serializers.ModelSerializer):
     class Meta:
-        models = AddToCart
-        fields = ('id', 'user', 'product', 'price', 'quantity', 'booking_date', 'delivery_date', 'status', 'shipping_address', 'payment_method')
+        model = AddToCart
+        fields = ['user', 'product', 'quantity', 'added_at']
+#         fields = ('id', 'user', 'product', 'price', 'quantity', 'booking_date', 'delivery_date', 'status', 'shipping_address', 'payment_method')
 
+class OrderSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+class ReviewSerializer(serializers.Serializer):
+
+    review_text = serializers.CharField(max_length=100)
+    rating = serializers.IntegerField()
+    product_id = serializers.IntegerField()
+    user_id = serializers.IntegerField()
+    created_at = serializers.DateTimeField()
+
+    # class Meta:
+    #     model = Review
+    #     fields = '__all__'
+
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+  
+
+    class Meta:
+        model = Profile
+        fields = ['id', 'user', 'is_vendor', 'phone_no']        

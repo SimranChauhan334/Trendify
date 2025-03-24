@@ -1,0 +1,205 @@
+
+
+
+
+ <!-- <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+     <title>AJAX Page</title>
+ </head>
+ <body>
+     <script>
+         $(document).ready(() => {
+             $(".get_button").click(() => {
+                 $.ajax({
+                     method: 'GET',
+                     url: "http://127.0.0.1:8000/api/products/",
+                     success: ((res) => {
+                         console.log(res.results);
+ 
+                         var data = "";
+                         res.results.map((item, index) => {
+                             
+                             var productId = item.url.split('/').slice(-2, -1)[0];
+ 
+                           
+                             data += `
+                                 <p>
+                                     ${item.product_price}, 
+                                     <a href="#" class="product_name" data-id="${productId}">
+                                         ${item.product_name}
+                                     </a>
+                                 </p>`;
+                         });
+ 
+                         
+                         $(".show_data").html(data);
+                     })
+                 });
+             });
+ 
+            
+             $(document).on('click', '.product_name', function (e) {
+                 e.preventDefault();
+ 
+                 var productId = $(this).data('id');  
+                 console.log("Clicked product ID:", productId);  
+                
+                 $.ajax({
+                     method: "GET",
+                     url: `http://127.0.0.1:8000/api/products/${productId}/`,
+                     success: (details) => {
+                         console.log(details);
+ 
+                         var detailsHtml = `
+                             <h3>Product Details</h3>
+                             <p>Name: ${details.product_name}</p>
+                             <p>Price: ${details.product_price}</p>
+                             <p>Description: ${details.product_description}</p>
+                         `;
+                         $(".product_details").html(detailsHtml); 
+                     }
+                 });
+             });
+         });
+     </script>
+ 
+     <h1>AJAX Page</h1>
+     <input type="button" value="Get Products" class="get_button">
+     <div class="show_data"></div>
+     <div class="product_details"></div>    
+ </body>
+ </html>
+  -->
+
+
+
+  <!-- <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <title>calculate page</title>
+  </head>
+  <body>
+    <script>
+        $(document).ready(()=>{
+            $(".calculate").click(()=>{
+                
+                var val1 = parseInt($(".num1").val())
+                var val2 = parseInt($(".num2").val())
+
+                var result = val1 + val2
+
+                $(".result").val(result)
+            })
+
+            $(".minus").click(()=>{
+
+                var val1 = parseInt($(".num1").val())
+                var val2 = parseInt($(".num2").val())
+
+                var result = val1 - val2
+
+                $('.result').val(result)
+            })
+
+            $("#multiply").click(()=>{
+                var val1 = parseInt($(".num1").val())
+                var val2 = parseInt($(".num2").val())
+
+                var result = val1 * val2
+
+                $('.result').val(result)
+
+
+            })
+        })
+    </script>
+    <h1> calculate page </h1>
+    <input type="text" name="num1" class="num1" >
+    <input type="text" name="num2" class="num2" >
+    <input type="button" class="calculate" value="calculate" >
+    <input type="button" class="minus" value="minus">
+    <input type="button"  value="multiply" id="multiply">
+    <input type="text" name="result" class="result">
+    
+   
+  </body>
+  </html>
+
+
+
+
+ -->
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Ajax</title>
+  </head>
+  <body>
+    <script>
+        $(document).ready(()=>{
+            $("input[value=plus]").click(()=>{
+                var a = parseInt($("input[name=num1]").val())
+                var b = parseInt($("input[name=num2]").val())
+                var result = a + b
+
+            $("input[name=result]").val(result)
+
+            })
+
+            $("input[value=minus]").click(()=>{
+                var a = parseInt($("input[name=num1]").val()) 
+                var b = parseInt($("input[name=num2]").val())
+
+                var result = a - b
+
+            $("input[name=result]").val(result)   
+            
+            
+            })
+
+            $("input[value=multiply]").click(()=>{
+                var a = parseInt($('input[name=num1]').val())
+                var b = parseInt($("input[name=num2]").val())
+
+                var result = a * b
+
+            $("input[name=result]").val(result)    
+            })
+
+            $("input[value=divide]").click(()=>{
+                var a = parseInt
+            })
+
+            
+
+
+           
+            
+        })
+    </script>
+    
+    <h1> calculate page</h1>
+    
+    <input type="text" name="num1">
+    <input type="text" name="num2">
+    <input type="button"  value="plus">
+    <input type="button" value="minus">
+    <input type="button" value="multiply">
+    <input type="text" name="result">
+  </body>
+  </html> 
+
+
+  

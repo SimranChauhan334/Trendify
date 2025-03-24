@@ -1,0 +1,181 @@
+
+
+
+
+<!-- get request -->
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<title>Ajax request page</title>
+</head>
+<body>
+    <script>
+        $(document).ready(()=>{
+            $(".get_button").click(()=>{
+                $.ajax({
+                    method:'GET',
+                    url: "http://127.0.0.1:8000/api/products/",
+                    success: ((res)=>{
+                        console.log(res.results)
+
+                        var data = ""
+                        res.results.map((item,index)=>{
+                            data += `<p>Price: ${item.product_price}, Name: ${item.product_name}</p>`
+                            // data+=`<p>${item.product_price,product_name}</p>`
+                        })
+
+                        $(".show_data").html(data)
+
+                    })
+                })
+            })
+        })
+
+    </script>
+
+
+    <h1>Ajax Page</h1>
+    <input type="button" value="Get category" class="get_button">
+    
+    <div class="show_data">
+
+    </div>
+</body>
+</html>  -->
+
+
+ 
+
+
+
+ <!-- post request -->
+
+
+ <!-- <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+     <title>Ajax request page</title>
+ </head>
+ <body>
+     <script>
+         $(document).ready(() => {
+             $(".post_button").click(() => {
+                console.log($("input[name=csrfmiddlewaretoken]").val())
+                 $.ajax({
+                     method: 'POST',
+                     
+                     url: "http://127.0.0.1:8000/api/review/",
+                     data: JSON.stringify({
+                        rating: '5',                        
+                        review_text: 'best product ',
+                        product: 'http://127.0.0.1:8000/api/products/15/',
+                        user: "http://127.0.0.1:8000/api/user/3/"
+                     }),
+                     contentType: 'application/json',
+                     headers: {
+                         'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val(),  
+                     },
+                     success: (res) => {
+                         console.log(res);
+                         if (res) {
+                             alert('Product added successfully');
+                         } else {
+                             alert('Failed to add product');
+                         }
+                     },
+                 });
+             });
+         });
+     </script>
+ 
+     <h1>Ajax Page</h1>
+     <input type="button" value="Post Product" class="post_button">
+     {% csrf_token %}
+     <div class="response_message">
+     
+     </div>
+ </body>
+ </html>
+  -->
+
+
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Post request</title>
+ </head>
+ <body>
+    <h1>POST request</h1>
+    
+    <form id="review-form">
+        {% csrf_token %}
+        <label for="rating">Rating (1 to 5):</label>
+        <input type="number" name="rating" id="rating" required><br><br>
+
+        <label for="review">Review:</label>
+        <input type="text" name="review" id="review" required><br><br>
+
+        <label for="product">Product URL:</label>
+        <input type="text" name="product" id="product" required><br><br>
+
+        <label for="user">User URL:</label>
+        <input type="text" name="user" id="user" required><br><br>
+
+        <input type="button" value="post review" class="post_button">
+    </form>
+    <script>
+        $(document).ready(()=>{
+            $(".post_button").click(()=>{
+
+                const rating = $("#rating").val()
+                const review = $("#review").val()
+                const product = $("#product").val()
+                const user = $("#user").val()
+
+
+                // console.log("Rating: ", rating);
+                // console.log("Review: ", review);
+                // console.log("Product: ", product);
+                // console.log("User: ", user);
+
+
+                // console.log($("input[name=csrfmiddlewaretoken]").val())
+
+                $.ajax({
+                    method:'POST',
+                    url: "http://127.0.0.1:8000/api/review/",
+                    data: JSON.stringify({
+                        rating:rating,
+                        review_text:review,
+                        product:product,
+                        user:user
+
+                    }),
+                    contentType:'application/json',
+                    headers:{
+                        'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val(),
+                    },
+                    success:(res) =>{
+                        console.log(res)
+                    }
+
+                })
+            })
+        })
+    </script>
+ </body>
+ </html>  
