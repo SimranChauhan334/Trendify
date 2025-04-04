@@ -23,7 +23,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from rest_framework import routers
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
 
 router = routers.DefaultRouter()
  
@@ -46,7 +50,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage, name='homepage'),
     path('api/', include(router.urls)),
-   
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),  
 
     # Category Views #
     path('create/', Create_category, name='Create_category'),
@@ -98,9 +104,15 @@ urlpatterns = [
     path('create_user/', createuser, name='create_user'),
     path('login/', userlogin, name="userlogin"),
     path('logout/', userlogout, name="userlogout"),
+
+    # api #
     path('api-auth/', include('rest_framework.urls')),
     path('ajax/',ajax_page),
     path('ajex/',ajex_page),
+    path('category_create/',Create_Category_JS),
+    path('create_subcat/',Create_subcat_js),
+    path('create_product_js/',Create_Products),
+
 
 ] + static(settings.STATIC_URL, documents_root= settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

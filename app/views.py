@@ -17,6 +17,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from .serializer import *
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class UserViewset(ModelViewSet):
@@ -31,17 +32,54 @@ class SubCategoryViewset(ModelViewSet):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
 
+
+
 class ProductImageViewset(ModelViewSet):
     queryset = ProductImage.objects.all()
     serializer_class = ProductImageSerializer
+
+    # def create(self,request, *args, **kwargs):
+    #     product_id = request.data.get('product_id')
+    #     product = Product.objects.get(id=product_id)
+
+    #     images = request.FILES.getlist('image')  
+
+    #     upload_image = [ ]
+    #     for img in images:
+    #         image_obj = ProductImage.objects.create(product=product, image=img)
+    #         upload_image.append(image_obj)
+
+    #     serializer = ProductImageSerializer(upload_image, many=True)    
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 class ProductViewset(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-    # def create(self, request, *args, **kwargs):
-    #     return       
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        images = request.FILES.getlist('images')
+
+        product = Product.objects.create(
+            product_name = data['product_name'],
+            product_price = data['product_price'],
+            product_description = data['product_description'],
+            color = data['color'],
+            material = data['material'],
+            stock = data['stock'],
+            category_id=data['category'],
+            subcategory_id=data['subcategory']
+        )        
+        upload_image =[ ]
+        for image in images:
+            product_image = product.images.create(image=image)
+            upload_image.append(product_image)
+       
+        product_serializer = ProductSerializer(product)
+        return Response(product_serializer.data, status=status.HTTP_201_CREATED)
+              
 
 class AddToCartViewSet(ModelViewSet):
     queryset = AddToCart.objects.all()
@@ -89,6 +127,13 @@ class ReviewViewset(ModelViewSet):
         # self.perform_create(serializer)
         # headers = self.get_success_headers(serializer.data)
         # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def list(self, request, *args, **kwargs):
+        breakpoint()
+        print(request)
+        reviews = Review.objects.all()
+        rvs = ReviewSerializer(reviews,many=True)
+        return Response(rvs.data,status=status.HTTP_200_OK)
 
     # def perform_create(self, serializer):
     #     serializer.save()
@@ -798,3 +843,13 @@ def ajax_page(request):
 
 def ajex_page(request):
     return render(request,'ajex.html')
+
+def Create_Category_JS(request):
+    return render(request,'category_json.html')  
+
+def Create_subcat_js(request):
+    return render (request,'create_subcategory_js.html')  
+
+def Create_Products(request):   
+    return render(request, 'create_product_js.html')
+   

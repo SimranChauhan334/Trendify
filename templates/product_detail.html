@@ -335,6 +335,29 @@
             {% else %}
                 <p>No reviews available</p>
             {% endif %}
+
+            <button id="review">Write a Review</button>
+            
+            <div id="container" style="display: none;">
+                <h2>Submit your review</h2>
+                <form id="review-form">
+                    {% csrf_token %}
+
+                    <label for="product_id">Product Id:</label>
+                    <input type="number" name="product_id" id="product_id" required><br><br>
+
+                    <label for="rating">Rating:</label>
+                    <input type="number" name="rating" id="rating" required><br><br>
+
+                    <label for="review_text">Review:</label>
+                    <input type="text" name="review_text" id="review_text" required><br><br>
+
+                    <input type="button" id="submit-review" value="Submit Review">
+                </form>
+            </div>
+
+
+            
             <a href="/product/{{ product.id }}/add_review">Add review</a>
         </div>
 
@@ -356,6 +379,48 @@
     </div>
 
     <script>
+        $(document).ready(()=>{
+            $("#review").click(()=>{
+                $("#container").toggle()
+                const btn = $('#container').is(':visible') ? 'Close Review Form' : 'Write a Review'
+                $('#review').text(btn)
+            })
+
+            $('#submit-review').click(()=>{
+                
+                const productId = $("#product_id").val()
+                const rating = $("#rating").val()
+                const reviewText = $("#review_text").val()
+
+                const data = {
+                    product_id : productId,
+                    rating : rating,
+                    review_text : reviewText
+
+                }
+
+                $.ajax({
+                    method : 'POST',
+                    url : 'http://127.0.0.1:8000/api/review/',
+                    data : JSON.stringify(data),
+                    contentType : 'application/json',
+                    headers : {
+                        'X-CSRFToken': $("input[name='csrfmiddlewaretoken']").val() 
+                    },
+                    success : (response) =>{
+                        alert("Review submitted successfully!");
+                        console.log(response)
+
+                        // $('#container').hide()
+                        // $('#review').text('Write a Review')
+                    }
+                })
+            })
+        })
+    </script>
+
+
+    <!-- <script>
         $(document).ready(function(){
             // console.log("jQuery is loaded!");
     
@@ -369,7 +434,7 @@
                 // console.log("Main image src updated to: ", $("#main-image").attr("src"));
             });
         });
-    </script>
+    </script> -->
     
     
 

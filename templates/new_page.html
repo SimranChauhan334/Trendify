@@ -5,8 +5,8 @@
 <!-- get request -->
 
 
-
 <!-- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +27,7 @@
 
                         var data = ""
                         res.results.map((item,index)=>{
-                            data += `<p>Price: ${item.product_price}, Name: ${item.product_name}</p>`
+                            data += `<p>Pricev : ${item.product_price}, Name: ${item.product_name}</p>`
                             // data+=`<p>${item.product_price,product_name}</p>`
                         })
 
@@ -48,12 +48,12 @@
 
     </div>
 </body>
-</html>  -->
+</html>  
 
 
  
 
-
+ -->
 
  <!-- post request -->
 
@@ -124,16 +124,16 @@
     <form id="review-form">
         {% csrf_token %}
         <label for="rating">Rating (1 to 5):</label>
-        <input type="number" name="rating" id="rating" required><br><br>
+        <input type="number" name="rating" id="rating" placeholder="rating"><br><br>
 
         <label for="review">Review:</label>
-        <input type="text" name="review" id="review" required><br><br>
+        <input type="text" name="review" id="review" placeholder="review"><br><br>
 
-        <label for="product">Product URL:</label>
-        <input type="text" name="product" id="product" required><br><br>
+        <label for="product_id">Product id:</label>
+        <input type="text" name="product" id="product_id" placeholder="product id"><br><br>
 
-        <label for="user">User URL:</label>
-        <input type="text" name="user" id="user" required><br><br>
+        <!-- <label for="user">User URL:</label>
+        <input type="text" name="user" id="user" required><br><br> -->
 
         <input type="button" value="post review" class="post_button">
     </form>
@@ -143,8 +143,9 @@
 
                 const rating = $("#rating").val()
                 const review = $("#review").val()
-                const product = $("#product").val()
-                const user = $("#user").val()
+                const product_id = $("#product_id").val()
+                // const product = $("#product").val()
+                // const user = $("#user").val()
 
 
                 // console.log("Rating: ", rating);
@@ -161,8 +162,8 @@
                     data: JSON.stringify({
                         rating:rating,
                         review_text:review,
-                        product:product,
-                        user:user
+                        product_id:product_id,
+                        // user:user
 
                     }),
                     contentType:'application/json',
@@ -178,4 +179,4 @@
         })
     </script>
  </body>
- </html>  
+ </html>   

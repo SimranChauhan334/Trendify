@@ -1,0 +1,110 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Upload Image</title>
+</head>
+<body>
+    <h1>Upload Image</h1>
+    <form id="category-form">
+        {% csrf_token %}
+        
+        <lable for="category name">Category name</lable>
+        <input type="text" name="category_name" class="category_name" placeholder="Enter category name"><br><br>
+        
+        <label for="image">Image</label>
+        <input type="file" name="image" class="image" multiple><br><br>
+
+        <input type="button" value="Post category" class="upload">
+
+      
+    </form>
+
+    <script>
+        $(document).ready(()=>{
+            $(".upload").click(()=>{
+
+
+                const category_name = $(".category_name").val()
+                category_image = $(".image")[0].files[0]; 
+                
+                const formData = new FormData()
+                formData.append('name', category_name)
+                formData.append('image',category_image)
+                // for (var i = 0 ;i<files.lenght; i++){
+                //     formData.append("file", files[i])
+                // }
+
+                console.log(formData)
+
+                $.ajax({
+                    method : 'POST',
+                    url : 'http://127.0.0.1:8000/api/category/',
+                    data : formData,
+                    contentType:false,
+                    processData: false,
+                    headers: {
+                        'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val(),
+                        
+                    },
+
+                    success: (res) =>{
+                        console.log(res)
+                        alert('Category uploaded successfully');
+                    }
+                })
+            })
+        })
+    </script>
+</body>
+</html> 
+
+ 
+
+
+
+
+
+<!-- 
+
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Get Category</title>
+ </head>
+ <body>
+    <script>
+        $(document).ready(()=>{
+            $(".get_button").click(()=>{
+                $.ajax({
+                    method:'GET',
+                    url:'http://127.0.0.1:8000/api/category/',
+                    success:((res)=>{
+                        console.log("res.results")
+                        
+                        var data = ''
+                        res.results.map((item,index)=>{
+                            data += `<p>Name: ${item.name}, Image: <img src="${item.image}"  style="width: 100px; height: auto;"></p>`
+                            // data += `<p>Name : ${item.name}, Image: ${item.Image}</p>`
+
+                        })
+                        $(".show_data").html(data)
+                    })
+                })
+            })
+        })
+    </script>
+    <h1>Get Category</h1>
+    <input type="button" value="Get category" class="get_button">
+    <div class="show_data">
+   
+ </body>
+ </html> -->

@@ -1,0 +1,153 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Create Product</title>
+</head>
+<body>
+    <h1>Create Product</h1>
+    <form id="product-form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label for="product_name">Product Name:</label>
+        <input type="text" name="product_name" id="product_name" required><br><br>
+
+        <label for="product_price">Product Price:</label>
+        <input type="number" name="product_price" id="product_price" required><br><br>
+
+        <label for="product_description">Product Description:</label>
+        <textarea name="product_description" id="product_description" required></textarea><br><br>
+
+        <label for="color">Color:</label>
+        <input type="text" name="color" id="color" required><br><br>
+
+        <label for="material">Material:</label>
+        <input type="text" name="material" id="material"><br><br>
+
+        <label for="stock">Stock:</label>
+        <input type="number" name="stock" id="stock" required><br><br>
+
+        <label for="category">Category:</label>
+        <select name="category" id="category" required>
+            <option value="">Select a Category</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="subcategory">Subcategory:</label>
+        <select name="subcategory" id="subcategory" required>
+            <option value="">Select a Subcategory</option>
+            {% for subcategory in subcategories %}
+                <option value="{{ subcategory.id }}">{{ subcategory.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="images">Product Images:</label>
+        <input type="file" name="images" id="images" multiple required><br><br>
+
+        <button type="button" id="submit-product">Create Product</button>
+
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $("#submit-product").click(function() {
+                var formData = new FormData();
+
+                const product_name = $("#product_name").val()
+                const product_price = $("#product_price").val()
+                const product_description = $("#product_description").val()
+                const color = $("#color").val()
+                const material = $("#material").val()
+                const stock = $("#stock").val()
+                const subcategory = $("#subcategory").val()
+                const category = $("#category").val()
+
+                formData.append('product_name', product_name);
+                formData.append('product_price', product_price);
+                formData.append('product_description', product_description);
+                formData.append('color', color);
+                formData.append('material', material);
+                formData.append('stock', stock);
+                formData.append('subcategory', subcategory);
+                formData.append('category', category);
+
+                var files = $('#images')[0].files;
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('images', files[i]);
+                }
+
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/products/', 
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    headers: {
+                        'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val(),
+                    },
+                    success: function(res) {
+                        console.log(res);
+                        alert('Product uploaded successfully!');
+                    },
+                    error: function(err) {
+                        console.error(err);
+                        alert('There was an error uploading the product. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+<!-- 
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Product Details</title>
+ </head>
+ <body>
+    <script>
+        $(document).ready(()=>{
+            $(".show_product").click(()=>{
+                $.ajax({
+                    method : 'GET',
+                    url : 'http://127.0.0.1:8000/api/products/',
+                    success : ((res)=>{
+                        console.log(res.results)
+                        
+
+                        var data = ' '
+                        res.results.map((item,index)=>{
+                           
+                            data += `<p>Name: ${item.product_name}, Image: <img src="${item.image}"<p>`
+                        })
+
+                        $(".show_data").html(data)
+
+                    })
+                    
+                    
+                })
+            })
+        })
+    </script>
+    
+    <h1>Product Details</h1>
+    <input type="button" value="Product Details" class="show_product">
+    <div class="show_data"></div>
+ </body>
+ </html> -->

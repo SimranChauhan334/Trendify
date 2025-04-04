@@ -1,8 +1,8 @@
 
 
+<!-- 
 
-
- <!-- <!DOCTYPE html>
+  <!DOCTYPE html>
  <html lang="en">
  <head>
      <meta charset="UTF-8">
@@ -73,7 +73,7 @@
      <div class="product_details"></div>    
  </body>
  </html>
-  -->
+ -->
 
 
 
@@ -138,7 +138,7 @@
 
  -->
 
-  <!DOCTYPE html>
+  <!-- <!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -202,4 +202,157 @@
   </html> 
 
 
-  
+   -->
+
+
+
+
+<!-- 
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>review</title>
+   </head>
+   <body>
+    <h1>add reviews</h1>
+
+    <form id="review-form">
+        {% csrf_token %}
+
+        <label for="product_id">Product Id:</label>
+        <input type="number" name="product_id" id="product_id"required><br><br>
+
+        <label for="rating">Rating</label>
+        <input type="number" name="rating" id="rating"required><br><br>
+
+        <label for="review_text">Review</label>
+        <input type="text" name="review_text" id="review_text"required><br><br>
+
+        <input type="button" value="submit" class="Submit">
+
+    </form>
+
+    <script>
+        $(document).ready(()=>{
+            $('.Submit').click(()=>{
+
+                const productId = $("#product_id").val()
+                const rating = $("#rating").val()
+                const reviewText = $("#review_text").val()
+
+                const data = {
+                    product_id: productId,
+                    rating: rating,
+                    review_text: reviewText
+                }
+
+               
+
+                $.ajax({
+                    method : 'POST',
+                    url : 'http://127.0.0.1:8000/api/review/',
+                    data: JSON.stringify(data), 
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRFToken': $("input[name='csrfmiddlewaretoken']").val()  // Send CSRF token in the header
+                    },
+                    success : (response) =>{
+                        alert("Review submitted successfully!")
+                        console.log(response)
+                    }
+                })
+
+            })
+
+        })
+    </script>
+   </body>
+   </html> -->
+
+
+
+
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Review Form</title>
+   </head>
+   <body>
+    <h1>Review Form</h1>
+
+    <button id="review">Write a Review</button>
+
+    <div id="container" style="display: none;">
+        <h2>Submit your review</h2>
+        <form id="review-form">
+            {% csrf_token %}
+
+            <label for="product_id">Product Id:</label>
+            <input type="number" name="product_id" id="product_id" required><br><br>
+
+            <label for="rating">Rating:</label>
+            <input type="number" name="rating" id="rating" required><br><br>
+
+            <label for="review_text">Review:</label>
+            <input type="text" name="review_text" id="review_text" required><br><br>
+
+            <input type="button" id="submit-review" value="Submit Review">
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(()=>{
+            
+            $("#review").click(() => {
+               
+                $('#container').toggle()
+                const btn = $('#container').is(':visible') ? 'Close Review Form' : 'Write a Review';
+                $('#review').text(btn)
+            })
+
+            $("#submit-review").click(() => {
+                
+                const productId = $("#product_id").val()
+                const rating = $("#rating").val()
+                const reviewText = $("#review_text").val()
+
+
+                // if (!productId || !rating || !reviewText) {
+                //     alert("Please fill all the fields.");
+                //     return;
+                // }
+
+                const data = {
+                    product_id: productId,
+                    rating: rating,
+                    review_text: reviewText
+                }
+
+                $.ajax({
+                    method : 'POST',
+                    url : 'http://127.0.0.1:8000/api/review/',
+                    data : JSON.stringify(data),
+                    contentType : 'application/json',
+                    headers : {
+                        'X-CSRFToken': $("input[name='csrfmiddlewaretoken']").val() 
+                    },
+                    success : (response) =>{
+                        alert("Review submitted successfully!");
+                        console.log(response)
+
+                        $('#container').hide()
+                        $('#review').text('Write a Review')
+                    }
+                })
+                
+            })
+        })
+    </script>
+   </body>
+   </html>

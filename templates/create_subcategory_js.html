@@ -1,0 +1,94 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Create subcategory</title>
+</head>
+<body>
+    <h1>Create Subcategory</h1>
+    <script>
+        $(document).ready(()=>{
+            $.ajax({
+                method : 'GET',
+                url : 'http://127.0.0.1:8000/api/category/',
+                success : (res) => {
+                    var options = "<option value=>Select a Category</option>"
+                    
+                    res.results.map((e,index)=>{
+                        // console.log(e)
+                        options+=`<option value="${e.id}">${e.name}</option>`
+                    }) 
+
+                    $("#category").html(options)
+
+                    // const categorySelect = $("#category")
+                    
+                }
+            })
+        })
+        $(document).ready(()=>{
+            $('.Create').click(()=>{
+                
+
+                const subcategory_name = $(".name").val()
+                const category = $("#category").val()
+                subcategory_image = $('.image')[0].files[0]
+
+                const formData = new FormData
+
+                formData.append('name', subcategory_name)
+                formData.append('image', subcategory_image)
+                formData.append('category', category)
+
+                console.log(formData)
+
+                $.ajax({
+                    method : 'POST',
+                    url : 'http://127.0.0.1:8000/api/subcategory/',
+                    data : formData,
+                    contentType : false,
+                    processData : false,
+                    headers :  {
+                        'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val(),                        
+                    },
+                    success : (res)=>{
+                        console.log(res)
+                        alert('Category uploaded successfully')
+                    }
+
+
+                })
+
+            })
+        })
+    </script>
+    <form id="subcategory Form">
+        {% csrf_token %}
+
+        <label for="name">Subcategory Name</label>
+        <input type="text" name="name" class="name"><br><br>
+    
+        <label for="image">Image</label>
+        <input type="file" name="image" class="image"><br><br>
+    
+        <label for="category">Category:</label>
+        <select name="category" id="category" required>
+            
+            
+            <!-- {% for category in categories %} -->
+                <!-- <option value="{{ category.id }}">{{ category.name }}</option> -->
+            <!-- {% endfor %} -->
+        </select><br><br>   
+        
+        <input type="button" value="Create subcategory" class="Create">
+    </form>
+</body>
+</html> 
+
+
+
+

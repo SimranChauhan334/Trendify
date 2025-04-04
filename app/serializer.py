@@ -16,7 +16,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('id', 'name', 'image', 'user')
 
 
 class SubCategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -25,7 +25,7 @@ class SubCategorySerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
@@ -37,7 +37,8 @@ class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
     # product = ProductSerializer(read_only=True)
     class Meta:
         model = ProductImage
-        fields = ('id','product','image')
+        # fields = ('id', 'product', 'image')
+        fields = "__all__"
 
 class AddToCartSerializer(serializers.ModelSerializer):
     class Meta:
