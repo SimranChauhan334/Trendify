@@ -18,6 +18,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializer import *
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
 
 
 class UserViewset(ModelViewSet):
@@ -129,8 +133,8 @@ class ReviewViewset(ModelViewSet):
         # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def list(self, request, *args, **kwargs):
-        breakpoint()
-        print(request)
+        # breakpoint()
+        # print(request)
         reviews = Review.objects.all()
         rvs = ReviewSerializer(reviews,many=True)
         return Response(rvs.data,status=status.HTTP_200_OK)
@@ -149,6 +153,37 @@ class ProfileViewSet(ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
      
+
+class Loginpage(APIView):
+
+
+    def post(self,request, *args, **kwargs):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        if not username or not password:
+            return Response(
+                {"detail": "Username and password are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = authenticate(request, username=username, password=password)
+
+        if not user:
+            return Response(
+                {"detail": "Invalid credentials."},
+                status=status.HTTP_401_UNAUTHORIZED
+
+            )
+        
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        
+        return Response({
+            "access": access_token,
+            "refresh": str(refresh),
+        }, status=status.HTTP_200_OK)
+    
 
 
 def homepage(request):
@@ -749,6 +784,7 @@ def userlogin(request):
             return render(request, "userlogin.html")
 
     return render(request, "userlogin.html")
+    # return render(request, "login_by_js.html")
 
 
 def userlogout(request):

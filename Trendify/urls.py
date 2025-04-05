@@ -21,7 +21,7 @@ from django.urls import path, include
 from app.views import *
 from django.conf import settings
 from django.conf.urls.static import static
-
+# from app.views import Loginpage
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -52,7 +52,8 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),  
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    # path('login/', Loginpage.as_view(), name='login'),
 
     # Category Views #
     path('create/', Create_category, name='Create_category'),

@@ -1,0 +1,50 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required><br><br>
+        <input type="password" id="password" placeholder="Password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        $(document).ready(function () {
+            $('#loginForm').submit(function (e) {
+                e.preventDefault();
+
+                var username = $('#username').val();
+                var password = $('#password').val();
+
+                $.ajax({
+                    url: 'http://localhost:8000/api/user/', 
+                    type: 'POST',
+                    data: JSON.stringify({
+                        "username": username,
+                        "password": password
+                    }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        localStorage.setItem('access_token', response.access);
+                        alert("Login successful!");
+                        window.location.href = '/dashboard';
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loginError').show(); 
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
