@@ -1,7 +1,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,40 +10,61 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+
     <h2>Login</h2>
+
+   
     <form id="loginForm">
-        <input type="text" id="username" placeholder="Username" required><br><br>
-        <input type="password" id="password" placeholder="Password" required><br><br>
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
         <button type="submit">Login</button>
     </form>
 
+    
+    <div id="errorMessage" style="color: red; display: none;"></div>
+
     <script>
-        $(document).ready(function () {
-            $('#loginForm').submit(function (e) {
-                e.preventDefault();
+        $(document).ready(function(){
+          
+            $('#loginForm').on('submit', function(event){
+                event.preventDefault();
 
                 var username = $('#username').val();
                 var password = $('#password').val();
 
+              
                 $.ajax({
-                    url: 'http://localhost:8000/api/user/', 
+                    url: '/get-jwt-token/', 
                     type: 'POST',
-                    data: JSON.stringify({
-                        "username": username,
-                        "password": password
-                    }),
-                    contentType: 'application/json',
-                    success: function(response) {
-                        localStorage.setItem('access_token', response.access);
-                        alert("Login successful!");
-                        window.location.href = '/dashboard';
+                    data: {
+                        'username': username,
+                        'password': password,
+                        'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
                     },
-                    error: function(xhr, status, error) {
-                        $('#loginError').show(); 
+                    success: function(response){
+                        if(response.status === 'success') {
+                           
+                            localStorage.setItem('access_token', response.access_token);
+
+                           
+                            window.location.href = '/home/';
+                        } else {
+                           
+                            $('#errorMessage').text(response.error).show();
+                        }
+                    },
+                    error: function(xhr, status, error){
+                        console.error("Error: " + error);
                     }
                 });
             });
         });
     </script>
+
 </body>
 </html>

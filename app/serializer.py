@@ -19,6 +19,12 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'name', 'image', 'user')
 
 
+
+# class SubcategorySerializer(serializers.Serializer):
+#     category_id = serializers.IntegerField()
+#     name = serializers.CharField()
+#     image = serializers.ImageField()
+#     user_id = serializers.IntegerField()
 class SubCategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SubCategory
@@ -70,3 +76,15 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Profile
         fields = ['id', 'user', 'is_vendor', 'phone_no']        
+
+# class SubcategorySerializer(serializers.Serializer):
+#     category_id = serializers.IntegerField()
+#     name = serializers.CharField()
+#     image = serializers.ImageField()
+#     user_id = serializers.IntegerField()
+
+
+class SubCategoryByCategory(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = '__all__'

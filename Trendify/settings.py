@@ -25,6 +25,8 @@ SECRET_KEY = 'django-insecure-o^c*+0j!*r$h0xhjtlng7%wx)%(so(osg@3e76gy0_=$gy2j#a
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 ALLOWED_HOSTS = []
 
@@ -40,9 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    # 'corsheaders',
+    'corsheaders',
     'app',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React app
+]
+
 
 
 # REST_FRAMEWORK = {
@@ -58,7 +65,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'Trendify.urls'

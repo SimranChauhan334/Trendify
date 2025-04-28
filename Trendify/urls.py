@@ -21,6 +21,7 @@ from django.urls import path, include
 from app.views import *
 from django.conf import settings
 from django.conf.urls.static import static
+# from . import views
 # from app.views import Loginpage
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
@@ -42,6 +43,7 @@ router.register(r'cart', AddToCartViewSet)
 router.register(r'order',OrderViewset)
 router.register(r'review', ReviewViewset)
 router.register(r'profile', ProfileViewSet)
+router.register('subcategory_by_category',SubCategoryByCategoryViewset,basename='subcategory_by_category')
 
 
 
@@ -50,6 +52,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage, name='homepage'),
     path('api/', include(router.urls)),
+    path('api/sub_cat_by_cat/<int:id>',CatBySubcategopry.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
@@ -114,6 +117,7 @@ urlpatterns = [
     path('create_subcat/',Create_subcat_js),
     path('create_product_js/',Create_Products),
 
+    
 
 ] + static(settings.STATIC_URL, documents_root= settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

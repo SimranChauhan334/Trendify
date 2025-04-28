@@ -22,7 +22,34 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from django.http import JsonResponse
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.generics import ListAPIView
 
+
+class CatBySubcategopry(ListAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategoryByCategory
+
+    def get(self, request, *args, **kwargs):
+        _id = kwargs['id']
+        sub = SubCategory.objects.filter(category_id = _id)
+
+        serializer = SubCategoryByCategory(sub, many=True)
+
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
+class SubCategoryByCategoryViewset(ModelViewSet):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategoryByCategory        
+
+    def retrieve(self, request, *args, **kwargs):
+        _id = kwargs['pk']
+        sub = SubCategory.objects.filter(category = _id)
+        serializer=SubCategoryByCategory(sub,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
 class UserViewset(ModelViewSet):
     queryset = User.objects.all()
@@ -31,6 +58,21 @@ class UserViewset(ModelViewSet):
 class CategoryViewset(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+
+# class SubCategoryViewset(ModelViewSet):
+#     queryset = SubCategory.objects.all()
+#     serializer_class = SubcategorySerializer
+
+#     def create(self,request, *args, **kwargs):
+
+#         category_id = request.data['category_id']
+#         name = request.data['name']
+#         image = request.data['image']
+
+
+#         )
+        
 
 class SubCategoryViewset(ModelViewSet):
     queryset = SubCategory.objects.all()
@@ -105,11 +147,14 @@ class ReviewViewset(ModelViewSet):
         rating = request.data['rating']
         product_id = request.data['product_id']
 
+        user = request.user
+
         # print(review_text,rating,product_id)
 
         review = Review.objects.create(
             product_id = product_id,
-            user_id = 1,
+            user = user,
+            # user_id = 1,
             review_text = review_text,
             rating = rating
         )
@@ -152,39 +197,7 @@ class ReviewViewset(ModelViewSet):
 class ProfileViewSet(ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-     
-
-class Loginpage(APIView):
-
-
-    def post(self,request, *args, **kwargs):
-        username = request.data.get("username")
-        password = request.data.get("password")
-
-        if not username or not password:
-            return Response(
-                {"detail": "Username and password are required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        user = authenticate(request, username=username, password=password)
-
-        if not user:
-            return Response(
-                {"detail": "Invalid credentials."},
-                status=status.HTTP_401_UNAUTHORIZED
-
-            )
-        
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
-        return Response({
-            "access": access_token,
-            "refresh": str(refresh),
-        }, status=status.HTTP_200_OK)
-    
-
+ 
 
 def homepage(request):
     categories = Category.objects.all() 
