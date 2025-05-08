@@ -5,39 +5,32 @@ from django.contrib.auth.models import User
 
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['id', 'user', 'is_vendor', 'phone_no']        
    
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
     class Meta:
         model = User
-        fields = ('username','first_name','last_name','email')
+        # fields = '__all__'
+        fields = ('username','first_name','last_name','password','email','profile')
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'image', 'user')
+        fields = ('id', 'name', 'image')
+        read_only = ('user',)
 
 
-
-# class SubcategorySerializer(serializers.Serializer):
-#     category_id = serializers.IntegerField()
-#     name = serializers.CharField()
-#     image = serializers.ImageField()
-#     user_id = serializers.IntegerField()
 class SubCategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SubCategory
         fields = '__all__'
-
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
-        # fields = ('id','product_name', 'product_price')
-        # fields = ('product_name','product_price')
-
+        
 
 class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
     # product = ProductSerializer(read_only=True)
@@ -45,6 +38,13 @@ class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
         model = ProductImage
         # fields = ('id', 'product', 'image')
         fields = "__all__"
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
+    class Meta:
+        model = Product
+        fields = '__all__'        
 
 class AddToCartSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,25 +66,16 @@ class ReviewSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     created_at = serializers.DateTimeField()
 
-    # class Meta:
-    #     model = Review
-    #     fields = '__all__'
-
-class ProfileSerializer(serializers.HyperlinkedModelSerializer):
-  
-
-    class Meta:
-        model = Profile
-        fields = ['id', 'user', 'is_vendor', 'phone_no']        
-
-# class SubcategorySerializer(serializers.Serializer):
-#     category_id = serializers.IntegerField()
-#     name = serializers.CharField()
-#     image = serializers.ImageField()
-#     user_id = serializers.IntegerField()
-
 
 class SubCategoryByCategory(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
         fields = '__all__'
+
+ 
+class ProductBysubcategory(serializers.ModelSerializer):
+    images=ProductImageSerializer(many=True,read_only=True)
+    class Meta:
+        model=Product
+        fields = '__all__'
+              

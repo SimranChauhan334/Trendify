@@ -24,17 +24,22 @@ from django.conf.urls.static import static
 # from . import views
 # from app.views import Loginpage
 from rest_framework import routers
+# from rest_framework_simplejwt.views import (
+#     TokenObtainPairView,
+#     TokenRefreshView,
+#     TokenVerifyView
+# )
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
-    TokenVerifyView
 )
 
 router = routers.DefaultRouter()
  
 # define the router path and viewset to be used
 
-router.register(r'user', UserViewset)
+router.register(r'usercreate', UserViewset)
 router.register(r'category', CategoryViewset)
 router.register(r'subcategory', SubCategoryViewset)
 router.register(r'products', ProductViewset)
@@ -44,6 +49,9 @@ router.register(r'order',OrderViewset)
 router.register(r'review', ReviewViewset)
 router.register(r'profile', ProfileViewSet)
 router.register('subcategory_by_category',SubCategoryByCategoryViewset,basename='subcategory_by_category')
+router.register('product_by_subcategory', ProductBysubcategoryViewset, basename='product_by_subcategory')
+
+
 
 
 
@@ -54,8 +62,13 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/sub_cat_by_cat/<int:id>',CatBySubcategopry.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+
     # path('login/', Loginpage.as_view(), name='login'),
 
     # Category Views #
