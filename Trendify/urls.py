@@ -61,12 +61,13 @@ urlpatterns = [
     path('', homepage, name='homepage'),
     path('api/', include(router.urls)),
     path('api/sub_cat_by_cat/<int:id>',CatBySubcategopry.as_view()),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/user/', current_user,name='currentuser'),
 
 
     # path('login/', Loginpage.as_view(), name='login'),

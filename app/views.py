@@ -26,7 +26,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework import permissions
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 
 
 class CatBySubcategopry(ListAPIView):
@@ -100,13 +102,74 @@ class UserViewset(ModelViewSet):
 
         serializer = self.get_serializer(user, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    user = request.user
+    try:
+        profile = user.profile  
+        return Response({
+            "username": user.username,
+            "is_vendor": profile.is_vendor
+        })
+    except profile.DoesNotExist:
+        return Response({
+            "username": user.username,
+            "is_vendor": False  
+        })
+    
+
+class CategoryViewset(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+   
+    
+    # permission_classes = [IsVendor]
+
+    def create(self, request, *args, **kwargs):
+        # breakpoint()
+        image = request.FILES.get('image')
+        name = request.data.get('name')
+        user_id = request.user.id
+        category = Category.objects.create(
+            name = name,
+            image = image,
+            user_id = user_id
+        )
+
+        category.save()
+        category_serialzier = CategorySerializer(category)
+
+        return Response(category_serialzier.data, status=status.HTTP_201_CREATED)
 
 
 
 class SubCategoryViewset(ModelViewSet):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
+    
+    
+    def create(self, request, *args, **kwargs):
+        print("Request data:", request.data)
+        image = request.FILES.get('image')
+        name = request.data.get('name')
+        category_id = request.data.get('category')
+        user_id = request.user.id
+        category = Category.objects.get(id=category_id)
+        subcategory = SubCategory.objects.create(
+            name = name,
+            image = image,
+            category = category,
+            user_id = user_id,
+        )
+
+        subcategory.save()
+        subcategory_serializer = SubCategorySerializer(subcategory, context={'request': request})
+        # subcategory_serialziar = SubCategorySerializer(subcategory)
+        return Response(subcategory_serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 
@@ -125,23 +188,35 @@ class ProductViewset(ModelViewSet):
         data = request.data
         images = request.FILES.getlist('images')
 
+        subcategory_id = data.get('subcategory')
+
+        if not subcategory_id:
+            return Response({'error': 'Subcategory ID is required.'}, status=400)
+
+        try:
+            subcategory = SubCategory.objects.get(id=subcategory_id)
+        except SubCategory.DoesNotExist:
+            return Response({'error': 'Invalid subcategory ID.'}, status=400)
+
         product = Product.objects.create(
-            product_name = data['product_name'],
-            product_price = data['product_price'],
-            product_description = data['product_description'],
-            color = data['color'],
-            material = data['material'],
-            stock = data['stock'],
-            category_id=data['category'],
-            subcategory_id=data['subcategory']
-        )        
-        upload_image =[ ]
+            product_name=data.get('product_name'),
+            product_price=data.get('product_price'),
+            product_description=data.get('product_description'),
+            color=data.get('color'),
+            material=data.get('material'),
+            stock=data.get('stock'),
+            subcategory=subcategory,
+            category=subcategory.category, 
+            user=request.user
+        )
+
         for image in images:
-            product_image = product.images.create(image=image)
-            upload_image.append(product_image)
-       
-        product_serializer = ProductSerializer(product)
-        return Response(product_serializer.data, status=status.HTTP_201_CREATED)
+            ProductImage.objects.create(product=product, image=image)
+
+        product_serializer = ProductSerializer(product, context={'request': request})
+        return Response(product_serializer.data, status=201)
+
+    
               
 
 class AddToCartViewSet(ModelViewSet):
@@ -190,6 +265,7 @@ class ReviewViewset(ModelViewSet):
         return Response(rvs.data,status=status.HTTP_200_OK)
 
 
+    
 
 class ProfileViewSet(ModelViewSet):
     queryset = Profile.objects.all()

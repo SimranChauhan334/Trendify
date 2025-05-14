@@ -10,6 +10,14 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id', 'user', 'is_vendor', 'phone_no']        
    
+class UserSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(source="profile.phone_no", required=False)
+    is_vendor = serializers.BooleanField(source="profile.is_vendor", required=False)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'phonen_umber', 'is_vendor']
+
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
@@ -32,7 +40,7 @@ class SubCategorySerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
         
 
-class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
+class ProductImageSerializer(serializers.ModelSerializer):
     # product = ProductSerializer(read_only=True)
     class Meta:
         model = ProductImage
