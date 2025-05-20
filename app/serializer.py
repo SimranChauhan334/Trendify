@@ -25,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         # fields = '__all__'
         fields = ('username','first_name','last_name','password','email','profile')
+        read_only_fields = ('id', 'username', 'email') 
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -60,7 +61,7 @@ class AddToCartSerializer(serializers.ModelSerializer):
         fields = ['user', 'product', 'quantity', 'added_at']
 #         fields = ('id', 'user', 'product', 'price', 'quantity', 'booking_date', 'delivery_date', 'status', 'shipping_address', 'payment_method')
 
-class OrderSerializer(serializers.HyperlinkedModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order

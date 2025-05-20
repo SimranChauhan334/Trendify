@@ -112,12 +112,20 @@ def current_user(request):
         profile = user.profile  
         return Response({
             "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone_no": profile.phone_no,
             "is_vendor": profile.is_vendor
         })
-    except profile.DoesNotExist:
+    except Profile.DoesNotExist:
         return Response({
             "username": user.username,
-            "is_vendor": False  
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone_no" :"",
+            "is_vendor": False 
         })
     
 
@@ -222,13 +230,96 @@ class ProductViewset(ModelViewSet):
 class AddToCartViewSet(ModelViewSet):
     queryset = AddToCart.objects.all()
     serializer_class = AddToCartSerializer
+    
+    
 
 
 class OrderViewset(ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+    def create(self, request, *args, **kwargs):
+        
+        user = request.user
 
+        product_id = request.data.get('product')
+        quantity = request.data.get('quantity')
+
+        shipping_address = request.data.get('shipping_address')
+        payment_method = request.data.get('payment_method')
+        delivery_date = request.data.get('delivery_date')
+
+        if not shipping_address or not payment_method:
+            return Response({'shipping_address and payment_method are required.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if product_id:
+           
+            try:
+                product = Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                return Response({'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            quantity = int(quantity or 1)
+
+            if product.stock < quantity:
+                return Response({f'Not enough stock for {product.product_name}'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            product.stock -= quantity
+            product.save()
+
+            order = Order.objects.create(
+                user=user,
+                product=product,
+                price=product.product_price,
+                quantity=quantity,
+                shipping_address=shipping_address,
+                payment_method=payment_method,
+                delivery_date=delivery_date,
+                status='confirmed'
+            )
+
+            serializer = OrderSerializer(order)
+            return Response([serializer.data], status=status.HTTP_201_CREATED)
+
+        else:
+        
+            cart_items = AddToCart.objects.filter(user=user)
+            if not cart_items.exists():
+                return Response({'Cart is empty.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            created_orders = []
+            for item in cart_items:
+                product = item.product
+                item_quantity = item.quantity
+
+                if product.stock < item_quantity:
+                    return Response({f'Not enough stock for {product.product_name}'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                product.stock -= item_quantity
+                product.save()
+
+                order = Order.objects.create(
+                    user=user,
+                    product=product,
+                    price=product.product_price,
+                    quantity=item_quantity,
+                    shipping_address=shipping_address,
+                    payment_method=payment_method,
+                    delivery_date=delivery_date,
+                    status='confirmed'
+                )
+
+                created_orders.append(order)
+
+            cart_items.delete()
+            serializer = OrderSerializer(created_orders, many=True)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+    
 class ReviewViewset(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer

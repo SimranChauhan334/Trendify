@@ -61,6 +61,7 @@ urlpatterns = [
     path('', homepage, name='homepage'),
     path('api/', include(router.urls)),
     path('api/sub_cat_by_cat/<int:id>',CatBySubcategopry.as_view()),
+    # path('api/buy-now/<int:product_id>/', BuyNowView.as_view(), name='buy-now'),
     # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
