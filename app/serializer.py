@@ -56,13 +56,15 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'        
 
 class AddToCartSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    product = ProductSerializer(read_only=True)
     class Meta:
         model = AddToCart
-        fields = ['user', 'product', 'quantity', 'added_at']
+        fields = ['id','user', 'product', 'quantity', 'added_at']
 #         fields = ('id', 'user', 'product', 'price', 'quantity', 'booking_date', 'delivery_date', 'status', 'shipping_address', 'payment_method')
 
 class OrderSerializer(serializers.ModelSerializer):
-
+    product = ProductSerializer(read_only=True)
     class Meta:
         model = Order
         fields = '__all__'

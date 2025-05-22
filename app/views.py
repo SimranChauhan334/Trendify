@@ -224,19 +224,47 @@ class ProductViewset(ModelViewSet):
         product_serializer = ProductSerializer(product, context={'request': request})
         return Response(product_serializer.data, status=201)
 
-    
-              
+
 
 class AddToCartViewSet(ModelViewSet):
     queryset = AddToCart.objects.all()
     serializer_class = AddToCartSerializer
-    
-    
+
+    def get_queryset(self):
+        return AddToCart.objects.filter(user=self.request.user)
+
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        product_id = data.get('product')
+        quantity = data.get('quantity', 1)
+        user = request.user
+
+        if AddToCart.objects.filter(product_id=product_id, user= user).exists():
+           return Response({"Product already in cart."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        product = Product.objects.get(id=product_id)
+        # serializer = self.get_serializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # serializer.save(user=user)
+        cart_items = AddToCart.objects.create(
+            product = product,
+            quantity = quantity,
+            user = user
+        )
+        cart_items.save()
+
+        serializer = self.get_serializer(cart_items)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 class OrderViewset(ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).order_by('-id')
 
     def create(self, request, *args, **kwargs):
         
