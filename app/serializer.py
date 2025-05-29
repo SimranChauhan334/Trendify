@@ -50,6 +50,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
     class Meta:
         model = Product
@@ -70,7 +71,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ReviewSerializer(serializers.Serializer):
-
+    user = UserSerializer(read_only=True)
     review_text = serializers.CharField(max_length=100)
     rating = serializers.IntegerField()
     product_id = serializers.IntegerField()
@@ -82,7 +83,6 @@ class SubCategoryByCategory(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
         fields = '__all__'
-
  
 class ProductBysubcategory(serializers.ModelSerializer):
     images=ProductImageSerializer(many=True,read_only=True)
@@ -90,3 +90,10 @@ class ProductBysubcategory(serializers.ModelSerializer):
         model=Product
         fields = '__all__'
               
+class ProductReviews(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = '__all__'

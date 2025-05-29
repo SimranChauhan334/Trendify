@@ -64,7 +64,7 @@ class ProductBysubcategoryViewset(ModelViewSet):
         serializers = ProductBysubcategory(product, many=True, context={'request': request})
         # serializers=ProductBysubcategory(product,many=True,)
         return Response(serializers.data,status=status.HTTP_200_OK)
-    
+
 
         
 class UserViewset(ModelViewSet):
@@ -383,6 +383,37 @@ class ReviewViewset(ModelViewSet):
         rvs = ReviewSerializer(reviews,many=True)
         return Response(rvs.data,status=status.HTTP_200_OK)
 
+
+
+    
+class AllReviews(ListAPIView):
+    queryset = Review.objects.all()
+    serializer_class =  ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+       product_id = kwargs.get('id')
+       reviews = Review.objects.filter(product_id=product_id)
+       serializer = ReviewSerializer(reviews, many=True)
+       return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, id, *args, **kwargs):
+        
+        product = get_object_or_404(Product, id=id)
+        review_text = request.data.get("review_text")
+        rating = request.data.get("rating")
+
+        if not review_text or not rating:
+            return Response({"Review text and rating are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        review = Review.objects.create(
+            product=product,
+            user=request.user,
+            review_text=review_text,
+            rating=rating
+        )
+
+        serializer = ProductReviews(review, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     
 
