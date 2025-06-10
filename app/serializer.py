@@ -11,12 +11,14 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'is_vendor', 'phone_no']        
    
 class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
     phone_number = serializers.CharField(source="profile.phone_no", required=False)
     is_vendor = serializers.BooleanField(source="profile.is_vendor", required=False)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'phonen_umber', 'is_vendor']
+        read_only_fields = ['id', 'username', 'email']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -24,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # fields = '__all__'
-        fields = ('username','first_name','last_name','password','email','profile')
+        fields = ('id','username','first_name','last_name','password','email','profile')
         read_only_fields = ('id', 'username', 'email') 
 
 
@@ -70,13 +72,19 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = '__all__'
 
-class ReviewSerializer(serializers.Serializer):
+class ReviewSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
     user = UserSerializer(read_only=True)
-    review_text = serializers.CharField(max_length=100)
-    rating = serializers.IntegerField()
-    product_id = serializers.IntegerField()
-    user_id = serializers.IntegerField()
-    created_at = serializers.DateTimeField()
+    
+    class Meta:
+        model = Review
+        fields = '__all__'
+    # user = UserSerializer(read_only=True)
+    # review_text = serializers.CharField(max_length=100)
+    # rating = serializers.IntegerField()
+    # product_id = serializers.IntegerField()
+    # user_id = serializers.IntegerField()
+    # created_at = serializers.DateTimeField()
 
 
 class SubCategoryByCategory(serializers.ModelSerializer):
@@ -96,4 +104,5 @@ class ProductReviews(serializers.ModelSerializer):
 
     class Meta:
         model = Review
+        # fields = ['id', 'review_text', 'rating','user'] 
         fields = '__all__'

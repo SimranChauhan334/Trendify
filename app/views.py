@@ -16,7 +16,6 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from .serializer import *
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -66,6 +65,18 @@ class ProductBysubcategoryViewset(ModelViewSet):
         return Response(serializers.data,status=status.HTTP_200_OK)
 
 
+class ProductSearch(ListAPIView):
+    serializer_class = ProductSerializer
+    
+    def get(self, request):
+        query = request.GET.get('q', '')
+        if query:
+            products = Product.objects.filter(Q(product_name__icontains=query))
+        else:
+            products = Product.objects.none()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+       
         
 class UserViewset(ModelViewSet):
     queryset = User.objects.all()
@@ -111,6 +122,7 @@ def current_user(request):
     try:
         profile = user.profile  
         return Response({
+            "id": user.id, 
             "username": user.username,
             "email": user.email,
             "first_name": user.first_name,
@@ -120,6 +132,7 @@ def current_user(request):
         })
     except Profile.DoesNotExist:
         return Response({
+            "id": user.id, 
             "username": user.username,
             "email": user.email,
             "first_name": user.first_name,
@@ -265,6 +278,8 @@ class OrderViewset(ModelViewSet):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).order_by('-id')
+    
+
 
     def create(self, request, *args, **kwargs):
         
@@ -293,9 +308,9 @@ class OrderViewset(ModelViewSet):
             if product.stock < quantity:
                 return Response({f'Not enough stock for {product.product_name}'},
                                 status=status.HTTP_400_BAD_REQUEST)
-
             product.stock -= quantity
             product.save()
+            
 
             order = Order.objects.create(
                 user=user,
@@ -347,6 +362,15 @@ class OrderViewset(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class CancelOrderView(APIView):
+    def delete(self, request, order_id):
+        order = Order.objects.get(id=order_id, user=request.user)
+        
+        if order.status == 'cancelled':
+            return Response({'detail': 'Order is already cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+        order.status = 'cancelled'
+        order.save()
+        return Response({'detail': 'Order cancelled successfully.'}, status=status.HTTP_200_OK)
     
 class ReviewViewset(ModelViewSet):
     queryset = Review.objects.all()
@@ -379,9 +403,11 @@ class ReviewViewset(ModelViewSet):
     def list(self, request, *args, **kwargs):
         # breakpoint()
         # print(request)
-        reviews = Review.objects.all()
+        reviews = Review.objects.select_related('user', 'product').all()
+        # reviews = Review.objects.all()
         rvs = ReviewSerializer(reviews,many=True)
         return Response(rvs.data,status=status.HTTP_200_OK)
+    
 
 
 
@@ -391,12 +417,23 @@ class AllReviews(ListAPIView):
     serializer_class =  ReviewSerializer
 
     def get(self, request, *args, **kwargs):
-       product_id = kwargs.get('id')
-       reviews = Review.objects.filter(product_id=product_id)
-       serializer = ReviewSerializer(reviews, many=True)
-       return Response(serializer.data, status=status.HTTP_200_OK)
+        product_id = kwargs.get('id')
+        reviews = Review.objects.filter(product_id=product_id).select_related('user','product')
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    
+
+    # def get(self, request, *args, **kwargs):
+    #    product_id = kwargs.get('id')
+    #    reviews = Review.objects.filter(product_id=product_id)
+    #    serializer = ReviewSerializer(reviews, many=True)
+    #    return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, id, *args, **kwargs):
+        print("Request user:", request.user, type(request.user))
+
         
         product = get_object_or_404(Product, id=id)
         review_text = request.data.get("review_text")
@@ -411,9 +448,14 @@ class AllReviews(ListAPIView):
             review_text=review_text,
             rating=rating
         )
+        
 
-        serializer = ProductReviews(review, context={'request': request})
+        serializer = ReviewSerializer(review, context={'request': request})
+        # serializer = ProductReviews(review, context={'request': request})
+        print(serializer.data)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 
     
 
